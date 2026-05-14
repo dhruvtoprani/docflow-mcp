@@ -1,4 +1,5 @@
 import { cleanHtml } from "./cleanHtml.js";
+import { compactImplementationContext } from "./compactImplementationContext.js";
 import { detectDocSections } from "./detectDocSections.js";
 import { estimateReductionPercent } from "./estimateTokenSavings.js";
 import { fetchPage } from "./fetchPage.js";
@@ -19,14 +20,18 @@ export async function extractDocsContext(
 
   const suspiciousInstructions = detectSuspiciousInstructions(markdown);
   const sanitizedMarkdown = removeSuspiciousInstructions(markdown);
-  const detectedSections = detectDocSections(sanitizedMarkdown);
+  const compactedMarkdown = compactImplementationContext(
+    sanitizedMarkdown,
+    input.maxChars ?? 12000
+  );
+  const detectedSections = detectDocSections(compactedMarkdown);
 
   const { contextPackMarkdown, warnings } = generateContextPack({
     title: cleaned.title,
     sourceUrl: fetched.url,
     goal: input.goal,
     stack: input.stack,
-    markdown: sanitizedMarkdown,
+    markdown: compactedMarkdown,
     detectedSections,
     suspiciousInstructions,
     maxChars: input.maxChars
@@ -38,13 +43,13 @@ export async function extractDocsContext(
     goal: input.goal,
     stack: input.stack,
     contextPackMarkdown,
-    rawCleanMarkdownPreview: sanitizedMarkdown.slice(0, 2000),
+    rawCleanMarkdownPreview: compactedMarkdown.slice(0, 2000),
     detectedSections,
     warnings,
     suspiciousInstructions,
     stats: {
       rawHtmlChars: fetched.html.length,
-      cleanedTextChars: sanitizedMarkdown.length,
+      cleanedTextChars: compactedMarkdown.length,
       contextPackChars: contextPackMarkdown.length,
       estimatedReductionPercent: estimateReductionPercent(
         fetched.html.length,

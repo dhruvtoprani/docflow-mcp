@@ -41,12 +41,7 @@ export function generateContextPack(args: {
     );
   }
 
-  const clippedMarkdown =
-    markdown.length > maxChars
-      ? `${markdown.slice(0, maxChars)}\n\n[Content clipped to maxChars=${maxChars}]`
-      : markdown;
-
-  const contextPack = `# DocFlow Context Pack
+  const contextPackPrefix = `# DocFlow Context Pack
 
 ## Goal
 ${goal}
@@ -77,7 +72,16 @@ If required information is missing, ask the user for the relevant documentation 
 Keep secrets and API keys server-side unless the documentation explicitly says otherwise.
 
 ## Cleaned Documentation Context
-${clippedMarkdown}
+`;
+
+  // Enforce a real final size budget for the whole context pack, not just raw markdown.
+  const markdownBudget = Math.max(2000, maxChars - contextPackPrefix.length - 120);
+  const clippedMarkdown =
+    markdown.length > markdownBudget
+      ? `${markdown.slice(0, markdownBudget)}\n\n[Content clipped to budget=${markdownBudget}]`
+      : markdown;
+
+  const contextPack = `${contextPackPrefix}${clippedMarkdown}
 `;
 
   return {
