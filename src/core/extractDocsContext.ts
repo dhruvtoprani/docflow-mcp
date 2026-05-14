@@ -11,18 +11,26 @@ import {
 } from "./sanitizePromptInjection.js";
 import type { ExtractDocsContextInput, ExtractDocsContextOutput } from "../types/docflow.js";
 
+function suggestBudget(goal: string, requestedMaxChars = 12000): number {
+  const text = goal.toLowerCase();
+  const profileBudget = /pagination|cursor|webhook|signature|hmac/.test(text) ? 8500 : 7500;
+  return Math.min(requestedMaxChars, profileBudget);
+}
+
 export async function extractDocsContext(
   input: ExtractDocsContextInput
 ): Promise<ExtractDocsContextOutput> {
   const fetched = await fetchPage(input.url);
   const cleaned = cleanHtml(fetched.html, fetched.url);
   const markdown = htmlToMarkdown(cleaned.contentHtml);
+  const budget = suggestBudget(input.goal, input.maxChars ?? 12000);
 
   const suspiciousInstructions = detectSuspiciousInstructions(markdown);
   const sanitizedMarkdown = removeSuspiciousInstructions(markdown);
   const compactedMarkdown = compactImplementationContext(
     sanitizedMarkdown,
-    input.maxChars ?? 12000
+    budget,
+    input.goal
   );
   const detectedSections = detectDocSections(compactedMarkdown);
 
@@ -34,7 +42,7 @@ export async function extractDocsContext(
     markdown: compactedMarkdown,
     detectedSections,
     suspiciousInstructions,
-    maxChars: input.maxChars
+    maxChars: budget
   });
 
   return {

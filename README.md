@@ -93,6 +93,38 @@ and scores both on practical implementation quality (correctness, security, runn
 
 Reports are saved in `eval/results/`.
 
+## Testing & Evaluation
+
+DocFlow is evaluated against a rendered browser-copy baseline on implementation quality, safety, and readiness.
+
+- Quality dimensions: implementation correctness, security hygiene, runnable readiness, hallucination risk
+- Efficiency dimension: input context size reduction
+- Result files: `eval/results/workflow-eval-*.json`
+
+### Recent 3-run trend
+
+| Run | DocFlow wins | Baseline wins | DocFlow avg total | Baseline avg total | DocFlow judge overall | Baseline judge overall | Input reduction |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `2026-05-14T22-41-42-713Z` | 1 | 9 | 0.668 | 0.767 | 62.1 | 75.9 | 10.52% |
+| `2026-05-14T23-14-12-041Z` | 3 | 7 | 0.715 | 0.734 | 68.5 | 70.4 | 30.24% |
+| `2026-05-14T23-29-35-940Z` | 8 | 2 | 0.794 | 0.666 | 76.8 | 63.2 | 29.15% |
+
+Interpretation:
+
+- The project improved from regression to strong positive benchmark performance.
+- Context stayed compact while quality increased.
+- Continued repeated runs are recommended to monitor variance and guard against overfitting.
+
+## Jobs To Be Done (JTBD)
+
+When I ask an AI coding assistant to implement against external docs, help me:
+
+- Pull only task-relevant documentation context, not entire pages.
+- Preserve critical API anchors (methods, paths, headers, pagination/signature tokens).
+- Produce reusable backend implementation patterns instead of one-off snippets.
+- Reduce hallucination risk by grounding outputs in extracted docs evidence.
+- Improve delivery speed and cost by shrinking prompt/context size.
+
 ## Environment variables
 
 Use `.env.example` as reference.

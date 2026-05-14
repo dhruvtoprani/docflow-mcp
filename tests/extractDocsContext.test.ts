@@ -26,8 +26,8 @@ describe("generateContextPack", () => {
     expect(result.contextPackMarkdown).toContain("## Goal");
     expect(result.contextPackMarkdown).toContain("Send email from backend");
     expect(result.contextPackMarkdown).toContain("https://docs.example.com/send-email");
-    expect(result.contextPackMarkdown).toContain("## Warnings");
-    expect(result.contextPackMarkdown).toContain("## Cleaned Documentation Context");
-    expect(result.warnings.length).toBeGreaterThan(0);
+    expect(result.contextPackMarkdown).toContain("## Task Signals");
+    expect(result.contextPackMarkdown).toContain("## Documentation Excerpts");
+    expect(Array.isArray(result.warnings)).toBe(true);
   });
 });

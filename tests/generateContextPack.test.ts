@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { generateContextPack } from "../src/core/generateContextPack.js";
 
 describe("generateContextPack", () => {
-  it("adds goal-specific missing anchor warnings for pagination goals", () => {
+  it("adds an output contract and tracks missing anchors in warnings", () => {
     const result = generateContextPack({
       title: "Example API",
       sourceUrl: "https://example.com/docs",
@@ -23,10 +23,8 @@ describe("generateContextPack", () => {
       maxChars: 4000
     });
 
-    expect(result.warnings.some((warning) => warning.includes("Goal-critical detail appears missing"))).toBe(
-      true
-    );
-    expect(result.contextPackMarkdown).toContain("## Goal-Specific Implementation Checklist");
+    expect(result.contextPackMarkdown).toContain("## Output Contract");
+    expect(result.warnings.some((warning) => warning.includes("Missing anchor in extracted context"))).toBe(true);
   });
 
   it("surfaces critical anchors section with headers and env vars", () => {
@@ -55,7 +53,7 @@ describe("generateContextPack", () => {
       maxChars: 4000
     });
 
-    expect(result.contextPackMarkdown).toContain("## Critical Anchors Found");
+    expect(result.contextPackMarkdown).toContain("## Task Signals");
     expect(result.contextPackMarkdown).toContain("Authorization: Bearer TOKEN");
     expect(result.contextPackMarkdown).toContain("process.env.NOTION_TOKEN");
   });

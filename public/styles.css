@@ -1,10 +1,10 @@
 :root {
-  --bg: #f6f8fb;
+  --bg: #f4f6f8;
   --surface: #ffffff;
-  --ink: #102033;
-  --muted: #4c6075;
-  --line: #d8e0e8;
-  --accent: #0b6bcb;
+  --ink: #10202f;
+  --muted: #4c5f74;
+  --line: #d3dde7;
+  --accent: #0f4d8a;
   --accent-ink: #ffffff;
 }
 
@@ -15,41 +15,55 @@
 body {
   margin: 0;
   font-family: "Avenir Next", "Segoe UI", sans-serif;
-  background: radial-gradient(circle at top right, #e7f1fb, var(--bg) 45%);
+  background: radial-gradient(circle at 20% 0%, #dde8f3, var(--bg) 44%);
   color: var(--ink);
 }
 
 .wrap {
-  max-width: 860px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+  padding: 2.2rem 1rem 3rem;
 }
 
 .hero {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.4rem;
+  padding: 1.1rem 1rem 0.6rem;
+  border-left: 8px solid var(--accent);
+  background: linear-gradient(90deg, #e9f0f7 0%, #f4f7fb 70%);
+  border-radius: 10px;
 }
 
 .eyebrow {
   margin: 0;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
+  font-size: 0.84rem;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 h1 {
-  margin: 0.2rem 0 0.6rem;
-  font-size: 2.4rem;
+  margin: 0.25rem 0 0.35rem;
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.tagline {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 750;
+  color: #0d345f;
 }
 
 .lead {
   margin: 0;
-  font-size: 1.05rem;
+  max-width: 760px;
+  font-size: 1.03rem;
   color: var(--muted);
 }
 
 .actions {
-  margin-top: 1rem;
+  margin-top: 1.1rem;
   display: flex;
   gap: 0.7rem;
   flex-wrap: wrap;
@@ -57,13 +71,19 @@ h1 {
 
 .button {
   display: inline-block;
-  padding: 0.6rem 0.95rem;
+  padding: 0.62rem 1rem;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 11px;
   background: var(--surface);
   color: var(--ink);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(16, 32, 47, 0.08);
 }
 
 .button.primary {
@@ -72,29 +92,66 @@ h1 {
   color: var(--accent-ink);
 }
 
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.3rem;
+}
+
+.metric {
+  background: #10202f;
+  color: #f4f9ff;
+  border-radius: 14px;
+  padding: 0.9rem 0.95rem;
+}
+
+.metric-label {
+  margin: 0;
+  font-size: 0.77rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #afc5db;
+}
+
+.metric-value {
+  margin: 0.35rem 0 0.15rem;
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.metric-note {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #d4e5f6;
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 1rem;
-  margin-top: 0.85rem;
+  padding: 1rem 1.05rem;
+  margin-top: 0.9rem;
 }
 
 .card h2 {
   margin-top: 0;
-  margin-bottom: 0.55rem;
-  font-size: 1.1rem;
+  margin-bottom: 0.58rem;
+  font-size: 1.13rem;
+  letter-spacing: -0.005em;
 }
 
 .card p,
 .card li {
   color: var(--muted);
+  line-height: 1.45;
 }
 
 pre {
   margin: 0;
-  padding: 0.8rem;
-  background: #f2f6fb;
+  padding: 0.84rem;
+  background: #eef3f8;
   border-radius: 10px;
   overflow-x: auto;
 }
@@ -106,4 +163,14 @@ code {
 
 .muted {
   border-style: dashed;
+}
+
+@media (max-width: 880px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 1rem 0.85rem 0.55rem;
+  }
 }

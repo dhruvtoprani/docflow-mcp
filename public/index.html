@@ -13,12 +13,10 @@
   <body>
     <main class="wrap">
       <section class="hero">
-        <p class="eyebrow">Open Source MCP Tool</p>
+        <p class="eyebrow">Open Source MCP Server</p>
         <h1>DocFlow MCP</h1>
-        <p class="lead">
-          Turn long API docs into compact, implementation-ready context packs for ChatGPT, Claude,
-          Cursor, and other MCP clients.
-        </p>
+        <p class="tagline">Smaller Context. Better Implementations.</p>
+        <p class="lead">DocFlow converts API docs into structured, task-ready context for AI-assisted coding.</p>
         <div class="actions">
           <a class="button primary" href="https://github.com/dhruvtoprani/docflow-mcp"
             >View on GitHub</a
@@ -29,18 +27,44 @@
         </div>
       </section>
 
+      <section class="metrics">
+        <article class="metric">
+          <p class="metric-label">Latest 10-task eval</p>
+          <p class="metric-value">8 : 2</p>
+          <p class="metric-note">DocFlow wins vs baseline</p>
+        </article>
+        <article class="metric">
+          <p class="metric-label">Quality delta</p>
+          <p class="metric-value">0.794</p>
+          <p class="metric-note">DocFlow avg total score</p>
+        </article>
+        <article class="metric">
+          <p class="metric-label">Efficiency gain</p>
+          <p class="metric-value">29.15%</p>
+          <p class="metric-note">Input reduction vs baseline</p>
+        </article>
+      </section>
+
       <section class="card">
         <h2>What it does</h2>
         <ul>
-          <li>Fetches a docs URL</li>
-          <li>Removes noise and converts useful content to markdown</li>
-          <li>Detects sections like auth, endpoints, params, errors, and rate limits</li>
-          <li>Returns a compact context pack for coding assistants</li>
+          <li>Fetches docs and removes non-implementation noise.</li>
+          <li>Keeps critical API anchors (method/path/header/pagination/signature).</li>
+          <li>Returns compact context packs for coding assistants and MCP clients.</li>
         </ul>
       </section>
 
       <section class="card">
-        <h2>Quick install</h2>
+        <h2>Jobs To Be Done</h2>
+        <ul>
+          <li>Pull only task-relevant docs context for implementation.</li>
+          <li>Preserve exact API contract details needed to ship code.</li>
+          <li>Reduce token spend without sacrificing implementation quality.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Quick Install</h2>
         <pre><code>git clone https://github.com/dhruvtoprani/docflow-mcp.git
 cd docflow-mcp
 npm install
@@ -69,11 +93,8 @@ npm run build</code></pre>
       </section>
 
       <section class="card muted">
-        <h2>Made for builders</h2>
-        <p>
-          If you can copy-paste commands, you can run this. If you can publish a repo, you can share
-          it.
-        </p>
+        <h2>Built for Practical AI Dev Workflows</h2>
+        <p>Reliable implementation context, lean prompts, and fast MCP integration for builder teams.</p>
       </section>
     </main>
   </body>

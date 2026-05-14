@@ -114,23 +114,77 @@ function requiredAnchorsForProfile(profile: GoalProfile): RequiredAnchor[] {
   ];
 }
 
-function renderChecklist(markdown: string, profile: GoalProfile): { checklist: string; missingLabels: string[] } {
-  const requirements = requiredAnchorsForProfile(profile);
-  const lines: string[] = [];
-  const missing: string[] = [];
+function collectMissingLabels(markdown: string, profile: GoalProfile): string[] {
+  return requiredAnchorsForProfile(profile)
+    .filter((requirement) => !requirement.pattern.test(markdown))
+    .map((requirement) => requirement.label);
+}
 
-  for (const requirement of requirements) {
-    const found = requirement.pattern.test(markdown);
-    lines.push(`- [${found ? "x" : " "}] ${requirement.label}`);
-    if (!found) {
-      missing.push(requirement.label);
-    }
+function renderOutputContract(profile: GoalProfile): string {
+  const lines = [
+    "- Use exact method + endpoint path as documented in excerpts.",
+    "- Include required headers/auth exactly as documented.",
+    "- Provide a reusable backend helper (not only a one-off script).",
+    "- Include explicit non-2xx handling.",
+    "- Avoid placeholders/TODOs; provide executable code paths."
+  ];
+
+  if (profile === "pagination") {
+    lines.push("- Implement concrete cursor continuation with documented token names.");
+  }
+  if (profile === "webhook") {
+    lines.push("- Verify signature against raw body before parsing and use timing-safe comparison.");
+    lines.push("- If docs include a provider validation helper, use it directly instead of pseudo-code.");
+  }
+  if (profile === "auth") {
+    lines.push("- Keep secrets server-side via environment variables.");
   }
 
-  return {
-    checklist: lines.join("\n"),
-    missingLabels: missing
-  };
+  lines.push("- If an SDK example is used, also show the equivalent direct HTTP endpoint call when endpoint details are present.");
+
+  return lines.join("\n");
+}
+
+function renderTaskSignals(
+  profile: GoalProfile,
+  anchors: ReturnType<typeof collectCriticalAnchors>
+): string {
+  const sections: string[] = [];
+
+  if (anchors.methodsAndPaths.length > 0) {
+    sections.push(
+      `- Endpoints and methods:\n${anchors.methodsAndPaths.map((line) => `  - ${line}`).join("\n")}`
+    );
+  }
+  if (anchors.headers.length > 0) {
+    sections.push(
+      `- Headers and auth format:\n${anchors.headers.map((line) => `  - ${line}`).join("\n")}`
+    );
+  }
+
+  if (profile === "auth" && anchors.envVars.length > 0) {
+    sections.push(
+      `- Server-side secret handling signals:\n${anchors.envVars.map((line) => `  - ${line}`).join("\n")}`
+    );
+  }
+
+  if (profile === "pagination" && anchors.paginationTokens.length > 0) {
+    sections.push(
+      `- Pagination tokens:\n${anchors.paginationTokens.map((line) => `  - ${line}`).join("\n")}`
+    );
+  }
+
+  if (profile === "webhook" && anchors.webhookSignals.length > 0) {
+    sections.push(
+      `- Webhook verification signals:\n${anchors.webhookSignals.map((line) => `  - ${line}`).join("\n")}`
+    );
+  }
+
+  if (sections.length === 0) {
+    return "- No strong task-specific signals were extracted; rely on excerpts below.";
+  }
+
+  return sections.join("\n");
 }
 
 export function generateContextPack(args: {
@@ -160,24 +214,24 @@ export function generateContextPack(args: {
   const warnings: string[] = [];
   const goalProfile = detectGoalProfile(goal);
   const anchors = collectCriticalAnchors(markdown);
-  const { checklist, missingLabels } = renderChecklist(markdown, goalProfile);
+  const missingLabels = collectMissingLabels(markdown, goalProfile);
 
-  if (!detectedSections.authentication) {
-    warnings.push("Authentication details were not clearly found on this page.");
-  }
-  if (!detectedSections.installation) {
-    warnings.push("Installation or setup instructions were not clearly found on this page.");
-  }
-  if (!detectedSections.rateLimits) {
-    warnings.push("Rate limits were not clearly found on this page.");
-  }
   if (suspiciousInstructions.length > 0) {
     warnings.push(
       "Suspicious prompt-injection-like instructions were detected and removed from the context pack."
     );
   }
-  for (const missingLabel of missingLabels) {
-    warnings.push(`Goal-critical detail appears missing: ${missingLabel}.`);
+  if (goalProfile === "auth" && !detectedSections.authentication) {
+    warnings.push("Auth details were not clearly found on this page.");
+  }
+  if (goalProfile === "pagination" && !detectedSections.parameters) {
+    warnings.push("Pagination parameters were not clearly found on this page.");
+  }
+  if (goalProfile === "webhook" && !detectedSections.security) {
+    warnings.push("Webhook/security verification details were not clearly found on this page.");
+  }
+  for (const label of missingLabels) {
+    warnings.push(`Missing anchor in extracted context: ${label}.`);
   }
 
   const contextPackPrefix = `# DocFlow Context Pack
@@ -190,51 +244,17 @@ ${stack ? `## User Stack\n${stack}\n` : ""}
 - Title: ${title}
 - URL: ${sourceUrl}
 
-## Detected Documentation Coverage
-- Installation/setup: ${detectedSections.installation ? "Found" : "Not clearly found"}
-- Authentication: ${detectedSections.authentication ? "Found" : "Not clearly found"}
-- Endpoint/API reference: ${detectedSections.endpoint ? "Found" : "Not clearly found"}
-- Parameters/request body: ${detectedSections.parameters ? "Found" : "Not clearly found"}
-- Request example: ${detectedSections.requestExample ? "Found" : "Not clearly found"}
-- Response example: ${detectedSections.responseExample ? "Found" : "Not clearly found"}
-- Errors: ${detectedSections.errors ? "Found" : "Not clearly found"}
-- Rate limits: ${detectedSections.rateLimits ? "Found" : "Not clearly found"}
-- Security notes: ${detectedSections.security ? "Found" : "Not clearly found"}
+## Output Contract
+${renderOutputContract(goalProfile)}
 
-## Warnings
-${warnings.length ? warnings.map((w) => `- ${w}`).join("\n") : "- None"}
-
-## Goal Profile
-- ${goalProfile}
-
-## Goal-Specific Implementation Checklist
-${checklist}
-
-## Critical Anchors Found
-${anchors.methodsAndPaths.length ? `- Methods and paths:\n${anchors.methodsAndPaths.map((line) => `  - ${line}`).join("\n")}` : "- Methods and paths: none clearly found"}
-${anchors.headers.length ? `- Headers and auth signals:\n${anchors.headers.map((line) => `  - ${line}`).join("\n")}` : "- Headers and auth signals: none clearly found"}
-${anchors.envVars.length ? `- Environment variable usage hints:\n${anchors.envVars.map((line) => `  - ${line}`).join("\n")}` : "- Environment variable usage hints: none clearly found"}
-${anchors.paginationTokens.length ? `- Pagination tokens:\n${anchors.paginationTokens.map((line) => `  - ${line}`).join("\n")}` : "- Pagination tokens: none clearly found"}
-${anchors.webhookSignals.length ? `- Webhook verification signals:\n${anchors.webhookSignals.map((line) => `  - ${line}`).join("\n")}` : "- Webhook verification signals: none clearly found"}
-
-## Instructions for AI Coding Assistant
-Use the documentation context below to help implement the user's goal.
-Do not invent API behavior that is not supported by this context.
-If required information is missing, ask the user for the relevant documentation page.
-Keep secrets and API keys server-side unless the documentation explicitly says otherwise.
-When you respond, include this minimum implementation contract:
-- Exact HTTP method + endpoint path(s)
-- Required headers and auth format exactly as documented
-- Required request fields and pagination tokens (if any)
-- A reusable server-side helper/client (not just one-off demo code)
-- Explicit non-2xx handling and security notes
-If any item above is missing from context, say it is missing instead of guessing.
-
-## Cleaned Documentation Context
+## Task Signals
+${renderTaskSignals(goalProfile, anchors)}
+${suspiciousInstructions.length > 0 ? `\n## Notes\n- Suspicious prompt-injection-like instructions were removed.\n` : ""}
+## Documentation Excerpts
 `;
 
   // Enforce a real final size budget for the whole context pack, not just raw markdown.
-  const markdownBudget = Math.max(2000, maxChars - contextPackPrefix.length - 120);
+  const markdownBudget = Math.max(1200, maxChars - contextPackPrefix.length - 120);
   const clippedMarkdown =
     markdown.length > markdownBudget
       ? `${markdown.slice(0, markdownBudget)}\n\n[Content clipped to budget=${markdownBudget}]`
