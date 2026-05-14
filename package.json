@@ -8,6 +8,7 @@
     "dev": "tsx src/index.ts",
     "dev:http": "tsx src/http.ts",
     "dev:extract": "tsx src/dev/runExtract.ts",
+    "eval:ab": "tsx src/eval/runAbEval.ts",
     "build": "tsc",
     "start": "node dist/src/index.js",
     "start:http": "node dist/src/http.js",

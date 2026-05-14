@@ -1,0 +1,24 @@
+[
+  {
+    "id": "github-auth-helper",
+    "url": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api",
+    "goal": "Implement authenticated GitHub REST API requests in a Node backend",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "Authorization",
+      "Bearer",
+      "X-GitHub-Api-Version",
+      "Accept: application/vnd.github+json",
+      "process.env.GITHUB_TOKEN"
+    ],
+    "mustAvoid": ["hardcode", "client-side token", "store token in frontend"]
+  },
+  {
+    "id": "github-create-issue",
+    "url": "https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#create-an-issue",
+    "goal": "Create an issue in a repository from a Node backend service",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": ["POST", "/issues", "Authorization", "Content-Type", "title"],
+    "mustAvoid": ["browser localStorage", "public token"]
+  }
+]
