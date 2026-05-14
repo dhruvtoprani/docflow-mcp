@@ -61,7 +61,7 @@ Open and edit these files:
 Replace:
 
 ```txt
-https://github.com/your-username/docflow-mcp
+https://github.com/dhruvtoprani/docflow-mcp
 ```
 
 with your real repo URL.

@@ -8,7 +8,7 @@ export async function fetchPage(url: string): Promise<{
   const normalizedUrl = normalizeUrl(url);
   const userAgent =
     process.env.DOCFLOW_USER_AGENT ||
-    "DocFlowMCP/0.1 (+https://github.com/your-username/docflow-mcp)";
+    "DocFlowMCP/0.1 (+https://github.com/dhruvtoprani/docflow-mcp)";
 
   const response = await fetch(normalizedUrl, {
     headers: {

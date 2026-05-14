@@ -29,7 +29,7 @@ and returns a structured payload with:
 ### 1. Install
 
 ```bash
-git clone https://github.com/your-username/docflow-mcp.git
+git clone https://github.com/dhruvtoprani/docflow-mcp.git
 cd docflow-mcp
 npm install
 npm run build

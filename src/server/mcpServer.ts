@@ -5,7 +5,7 @@ export function createDocFlowMcpServer() {
   const server = new McpServer({
     name: "docflow-mcp",
     version: "0.1.0",
-    websiteUrl: "https://github.com/your-username/docflow-mcp"
+    websiteUrl: "https://github.com/dhruvtoprani/docflow-mcp"
   });
 
   server.registerTool(
