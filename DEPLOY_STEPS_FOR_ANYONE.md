@@ -1,92 +1,49 @@
-# Deploy Steps (Very Simple)
+# Simple Setup Steps (Non-Technical)
 
-This file is written for someone with zero technical background.
+This is the shortest path.
 
-## What is already done for you
+## What is already done
 
-- The app is built.
-- A landing page exists in `docs/`.
-- A GitHub Pages auto-deploy workflow exists.
+- GitHub repo is live.
+- Landing page is live.
+- Vercel server is live.
+- MCP endpoint is live.
 
-## What you still need to do
+## Live links
 
-### 1. Reconnect GitHub on your machine
+- GitHub repo: https://github.com/dhruvtoprani/docflow-mcp
+- Landing page: https://dhruvtoprani.github.io/docflow-mcp/
+- MCP endpoint: https://docflow-mcp.vercel.app/mcp
+- Health check: https://docflow-mcp.vercel.app/healthz
 
-Copy and run:
+## Turn this into a ChatGPT connector
 
-```bash
-gh auth login -h github.com
-```
+1. Open ChatGPT.
+2. Go to `Settings`.
+3. Click `Connectors`.
+4. Click `Create`.
+5. Fill in:
+   - Name: `DocFlow MCP`
+   - Description: `Extract implementation context from documentation URLs`
+   - URL: `https://docflow-mcp.vercel.app/mcp`
+6. Save.
 
-Follow the prompts. Choose your normal GitHub account.
+## Quick test prompt to run in ChatGPT
 
-### 2. Create a GitHub repo and push this project
-
-From this project folder, run:
-
-```bash
-git init
-git add .
-git commit -m "Initial DocFlow MCP release"
-git branch -M main
-gh repo create docflow-mcp --public --source=. --remote=origin --push
-```
-
-### 3. Turn on GitHub Pages
-
-In your GitHub repo:
-
-1. Click `Settings`
-2. Click `Pages`
-3. Under `Build and deployment`, choose `GitHub Actions`
-
-That is it. Your landing page will deploy automatically.
-
-### 4. Find your landing page URL
-
-It will usually be:
+Use this prompt:
 
 ```txt
-https://YOUR_GITHUB_USERNAME.github.io/docflow-mcp/
+Use DocFlow MCP to extract implementation context from this docs page:
+https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api
+Goal: Implement authenticated GitHub REST API requests in Node.js.
 ```
 
-### 5. Fix placeholder links
+## If it does not work
 
-Open and edit these files:
-
-- `README.md`
-- `docs/index.html`
-- `src/server/mcpServer.ts`
-
-Replace:
-
-```txt
-https://github.com/dhruvtoprani/docflow-mcp
-```
-
-with your real repo URL.
-
-### 6. (Optional) Connect to ChatGPT as MCP connector
-
-When you host the HTTP server publicly (not localhost), use:
-
-```txt
-https://your-domain.com/mcp
-```
-
-Then in ChatGPT:
-
-1. Settings
-2. Connectors
-3. Create
-4. Paste that `/mcp` URL
-
-## If something fails
-
-Run these and paste the error output:
-
-```bash
-npm run build
-npm test
-gh auth status
-```
+1. Confirm health URL opens:
+   - https://docflow-mcp.vercel.app/healthz
+2. Re-open connector settings and make sure URL is exactly:
+   - `https://docflow-mcp.vercel.app/mcp`
+3. If still broken, open:
+   - https://vercel.com/dhruv-kekin-topranis-projects/docflow-mcp
+     and check latest deployment status.

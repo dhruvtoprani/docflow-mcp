@@ -2,17 +2,21 @@
 
 ## Prerequisites
 
-- Running HTTP transport (`npm run dev:http` or hosted deployment)
 - Public HTTPS URL reachable by ChatGPT
 - MCP endpoint exposed at `/mcp`
 
 ## Steps
 
-1. Start or deploy DocFlow MCP in HTTP mode.
+1. Use this live MCP URL:
+
+```txt
+https://docflow-mcp.vercel.app/mcp
+```
+
 2. Confirm health endpoint works:
 
 ```bash
-curl https://your-domain.com/healthz
+curl https://docflow-mcp.vercel.app/healthz
 ```
 
 3. In ChatGPT, open:
@@ -25,7 +29,7 @@ curl https://your-domain.com/healthz
 
 - Name: `DocFlow MCP`
 - Description: `Extract implementation context from documentation URLs`
-- URL: `https://your-domain.com/mcp`
+- URL: `https://docflow-mcp.vercel.app/mcp`
 
 5. Save and run a test prompt that triggers `extract_docs_context`.
 

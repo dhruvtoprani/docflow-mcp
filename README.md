@@ -50,6 +50,12 @@ npm run dev:http
 Default URL: `http://127.0.0.1:3000/mcp`  
 Health check: `http://127.0.0.1:3000/healthz`
 
+## Live URLs
+
+- Landing page: `https://dhruvtoprani.github.io/docflow-mcp/`
+- Live MCP endpoint: `https://docflow-mcp.vercel.app/mcp`
+- Live health check: `https://docflow-mcp.vercel.app/healthz`
+
 ## Local extraction demo
 
 Run with sample input:
@@ -87,13 +93,13 @@ Use `.env.example` as reference.
 
 - Name: `DocFlow MCP`
 - Description: `Documentation context compressor for coding assistants`
-- URL: `https://your-domain.com/mcp`
+- URL: `https://docflow-mcp.vercel.app/mcp`
 
 5. Save and test `extract_docs_context`.
 
 ## MCP client config example (stdio)
 
-See [examples/mcp-servers.example.json](/Users/dhruvtoprani/Desktop/Projects/docflow-mcp/examples/mcp-servers.example.json).
+See [examples/mcp-servers.example.json](examples/mcp-servers.example.json).
 
 ## Scripts
 
@@ -128,8 +134,8 @@ npm test
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](/Users/dhruvtoprani/Desktop/Projects/docflow-mcp/CONTRIBUTING.md).
+Please read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT - see [LICENSE](/Users/dhruvtoprani/Desktop/Projects/docflow-mcp/LICENSE).
+MIT - see [LICENSE](LICENSE).

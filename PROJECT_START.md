@@ -491,7 +491,7 @@ export async function fetchPage(url: string): Promise<{
 }> {
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "DocFlowMCP/0.1 (+https://github.com/your-username/docflow-mcp)"
+      "User-Agent": "DocFlowMCP/0.1 (+https://github.com/dhruvtoprani/docflow-mcp)"
     }
   });
 

@@ -65,6 +65,11 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - Added GitHub Pages deployment workflow at `.github/workflows/deploy-pages.yml`.
 - Added non-technical release checklist file: `DEPLOY_STEPS_FOR_ANYONE.md`.
 - Verified current local blocker for auto-push: GitHub CLI token needs re-authentication.
+- Fixed docs/link integrity issues (removed local absolute links and stale placeholders).
+- Added Vercel serverless API routes: `api/mcp.ts` and `api/healthz.ts`.
+- Added `vercel.json` rewrites so `/mcp` and `/healthz` map to serverless endpoints.
+- Added `public/` landing output for Vercel static + functions deployment compatibility.
+- Deployed production URL and validated MCP initialize against live endpoint.
 
 ## Action Items
 
@@ -80,13 +85,13 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - [x] Add end-to-end MCP tool invocation harness over stdio transport.
 - [ ] Add end-to-end MCP tool invocation harness over HTTP transport.
 - [ ] Replace placeholder `websiteUrl` with real GitHub repo URL before launch.
-- [ ] Re-authenticate GitHub CLI (`gh auth login`) and push initial public repo.
-- [ ] Enable GitHub Pages in repo settings (GitHub Actions source).
+- [x] Re-authenticate GitHub CLI (`gh auth login`) and push initial public repo.
+- [x] Enable GitHub Pages in repo settings (GitHub Actions source).
+- [x] Deploy always-on Vercel production endpoint for ChatGPT connector use.
 
 ## Next Steps
 
-1. Validate ChatGPT connector end-to-end using deployed HTTPS `/mcp` URL.
+1. Validate ChatGPT connector end-to-end using `https://docflow-mcp.vercel.app/mcp`.
 2. Test extraction quality against two additional providers (email + payments docs).
 3. Add HTTP-level MCP call test (initialize + tool call against `/mcp`).
-4. Replace placeholder repository metadata (`websiteUrl`, README clone URL) with real org/repo.
-5. Cut v0.1.0 release notes and publish repository.
+4. Cut v0.1.0 release notes and publish repository.
