@@ -4,7 +4,7 @@ const relevancePatterns: RegExp[] = [
   /request|request body|payload|parameter|params|query|header|required|field|schema/i,
   /response|status|returns?|json|example response/i,
   /error|unauthorized|forbidden|not found|rate limit|throttle|quota|retry-after|\b4\d\d\b|\b5\d\d\b/i,
-  /security|secret|environment variable|server-side|do not expose|permissions|scope/i,
+  /security|secret|environment variable|server-side|do not expose|permissions|scope|middleware|proxy|x-forwarded-proto|x-forwarded-host|timingsafeequal|hmac/i,
   /install|setup|quickstart|prerequisite/i
 ];
 
@@ -14,6 +14,7 @@ const hardAnchorPatterns: RegExp[] = [
   /\/v\d+\/[a-z0-9/_-]+/i,
   /\b(?:authorization|content-type|accept|notion-version|x-github-api-version|idempotency-key|x-hub-signature-256|x-slack-signature|x-slack-request-timestamp|x-twilio-signature)\b/i,
   /\b(?:starting_after|ending_before|has_more|next_cursor|start_cursor|page_size|limit)\b/i,
+  /\b(?:retry-after|x-forwarded-proto|x-forwarded-host|middleware|timingsafeequal|raw body)\b/i,
   /process\.env\.[A-Z0-9_]+/
 ];
 

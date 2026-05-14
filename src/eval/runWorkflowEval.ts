@@ -62,6 +62,8 @@ type OpenAIResponse = {
   }>;
 };
 
+type EvalGoalProfile = "pagination" | "webhook" | "auth" | "generic";
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
@@ -393,6 +395,31 @@ async function buildDocflowContext(task: EvalTask, maxChars = 12000): Promise<st
 }
 
 function buildImplementationPrompt(task: EvalTask, context: string): string {
+  const profile = detectEvalGoalProfile(task.goal);
+  const profileRequirements =
+    profile === "pagination"
+      ? [
+          "Pagination requirements:",
+          "- Include a real cursor loop (no placeholder pseudocode).",
+          "- Include has_more/next_cursor or equivalent continuation logic.",
+          "- Include caller-configurable limit/page_size with guardrails."
+        ]
+      : profile === "webhook"
+        ? [
+            "Webhook requirements:",
+            "- Provide a framework-ready middleware/helper shape (not only a standalone demo server).",
+            "- Verify signature before parsing/processing business logic.",
+            "- Include production URL reconstruction notes (proxy/external URL correctness)."
+          ]
+        : profile === "auth"
+          ? [
+              "Auth requirements:",
+              "- Include exact required auth headers and API version headers.",
+              "- Include explicit 401/403/404 handling with actionable messages.",
+              "- Keep tokens/secrets server-side and out of logs."
+            ]
+          : [];
+
   return [
     "You are implementing a backend integration using documentation context.",
     `Goal: ${task.goal}`,
@@ -403,12 +430,28 @@ function buildImplementationPrompt(task: EvalTask, context: string): string {
     "3) Failure modes and security notes",
     "4) A short validation checklist for testing",
     "Only use information supported by the provided context.",
+    "If context is missing a critical detail, explicitly mark it as missing and do not guess.",
+    ...profileRequirements,
     "",
     "Documentation Context:",
     context
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+function detectEvalGoalProfile(goal: string): EvalGoalProfile {
+  const text = goal.toLowerCase();
+  if (/pagination|cursor|has_more|next_cursor|starting_after|ending_before/.test(text)) {
+    return "pagination";
+  }
+  if (/webhook|signature|hmac|timingsafeequal|x-hub-signature|x-slack-signature|x-twilio-signature/.test(text)) {
+    return "webhook";
+  }
+  if (/auth|authorization|token|bearer|oauth|api key/.test(text)) {
+    return "auth";
+  }
+  return "generic";
 }
 
 function buildJudgePrompt(args: {
