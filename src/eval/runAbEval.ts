@@ -1,10 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { cleanHtml } from "../core/cleanHtml.js";
+import { JSDOM } from "jsdom";
 import { extractDocsContext } from "../core/extractDocsContext.js";
 import { fetchPage } from "../core/fetchPage.js";
-import { htmlToMarkdown } from "../core/htmlToMarkdown.js";
 
 type EvalTask = {
   id: string;
@@ -15,8 +14,10 @@ type EvalTask = {
   mustAvoid?: string[];
 };
 
+type BaselineMode = "rendered_browser_copy" | "naive_html_text";
+
 type ModelRun = {
-  label: "baseline" | "docflow";
+  label: "baseline_rendered_copy" | "baseline_naive_paste" | "docflow";
   inputChars: number;
   outputChars: number;
   latencyMs: number;
@@ -145,9 +146,75 @@ async function callOpenAI(args: {
 
 async function buildBaselineContext(url: string, maxChars = 12000): Promise<string> {
   const page = await fetchPage(url);
-  const cleaned = cleanHtml(page.html, page.url);
-  const markdown = htmlToMarkdown(cleaned.contentHtml);
-  return markdown.slice(0, maxChars);
+  const dom = new JSDOM(page.html, { url: page.url });
+  const fullText = dom.window.document.body?.textContent || "";
+  const normalized = fullText.replace(/\s+/g, " ").trim();
+  return normalized.slice(0, maxChars);
+}
+
+async function buildRenderedBaselineContext(url: string, maxChars = 12000): Promise<string> {
+  const { chromium } = await import("playwright");
+  const browserChannel = process.env.EVAL_BROWSER_CHANNEL?.trim();
+  const browser = await chromium.launch({
+    headless: true,
+    ...(browserChannel ? { channel: browserChannel } : {})
+  });
+
+  try {
+    const page = await browser.newPage();
+    await page.goto(url, {
+      waitUntil: "networkidle",
+      timeout: 45000
+    });
+
+    // Expand common collapsible docs blocks before copy extraction.
+    await page.evaluate(() => {
+      document.querySelectorAll("details").forEach((el) => {
+        const details = el as HTMLDetailsElement;
+        details.open = true;
+      });
+    });
+
+    const renderedText = await page.evaluate(() => {
+      const text = document.body?.innerText || "";
+      return text.replace(/\s+/g, " ").trim();
+    });
+
+    return renderedText.slice(0, maxChars);
+  } finally {
+    await browser.close();
+  }
+}
+
+async function buildBaselineContextByMode(
+  url: string,
+  mode: BaselineMode,
+  maxChars = 12000
+): Promise<{ context: string; label: "baseline_rendered_copy" | "baseline_naive_paste" }> {
+  if (mode === "rendered_browser_copy") {
+    try {
+      return {
+        context: await buildRenderedBaselineContext(url, maxChars),
+        label: "baseline_rendered_copy"
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        [
+          `Rendered baseline failed: ${message}`,
+          "Install browser runtime and retry:",
+          "  npx playwright install chromium",
+          "Or force naive mode:",
+          "  EVAL_BASELINE_MODE=naive_html_text npm run eval:ab"
+        ].join("\n")
+      );
+    }
+  }
+
+  return {
+    context: await buildBaselineContext(url, maxChars),
+    label: "baseline_naive_paste"
+  };
 }
 
 function buildPrompt(task: EvalTask, context: string): string {
@@ -172,8 +239,9 @@ async function runTask(args: {
   apiKey: string;
   model: string;
   task: EvalTask;
+  baselineMode: BaselineMode;
 }): Promise<TaskResult> {
-  const baselineContext = await buildBaselineContext(args.task.url);
+  const baselineData = await buildBaselineContextByMode(args.task.url, args.baselineMode);
   const docflow = await extractDocsContext({
     url: args.task.url,
     goal: args.task.goal,
@@ -181,7 +249,7 @@ async function runTask(args: {
     maxChars: 12000
   });
 
-  const baselinePrompt = buildPrompt(args.task, baselineContext);
+  const baselinePrompt = buildPrompt(args.task, baselineData.context);
   const docflowPrompt = buildPrompt(args.task, docflow.contextPackMarkdown);
 
   const baselineCall = await callOpenAI({
@@ -200,7 +268,7 @@ async function runTask(args: {
   const docflowScore = scoreOutput(args.task, docflowCall.output);
 
   const baseline: ModelRun = {
-    label: "baseline",
+    label: baselineData.label,
     inputChars: baselinePrompt.length,
     outputChars: baselineCall.output.length,
     latencyMs: baselineCall.latencyMs,
@@ -240,6 +308,9 @@ async function main() {
   const rawApiKey = process.env.OPENAI_API_KEY;
   const model = process.env.EVAL_MODEL || "gpt-5.5";
   const tasksPath = process.env.EVAL_TASKS_PATH || path.join(process.cwd(), "eval", "tasks.json");
+  const baselineModeEnv = (process.env.EVAL_BASELINE_MODE || "rendered_browser_copy").trim();
+  const baselineMode: BaselineMode =
+    baselineModeEnv === "naive_html_text" ? "naive_html_text" : "rendered_browser_copy";
 
   if (!rawApiKey) {
     throw new Error("Missing OPENAI_API_KEY. Set it in your shell before running eval.");
@@ -250,9 +321,10 @@ async function main() {
   const tasks = JSON.parse(raw) as EvalTask[];
 
   const results: TaskResult[] = [];
+  console.log(`Baseline mode: ${baselineMode}`);
   for (const task of tasks) {
     console.log(`Running task: ${task.id}`);
-    const taskResult = await runTask({ apiKey, model, task });
+    const taskResult = await runTask({ apiKey, model, task, baselineMode });
     results.push(taskResult);
 
     console.log(
@@ -262,6 +334,7 @@ async function main() {
 
   const summary = {
     model,
+    baselineMode,
     ranAt: new Date().toISOString(),
     taskCount: results.length,
     baselineWins: results.filter((r) => r.winner === "baseline").length,
@@ -275,6 +348,12 @@ async function main() {
       results.reduce((acc, r) => acc + r.baseline.inputChars, 0) / Math.max(results.length, 1),
     avgDocflowInputChars:
       results.reduce((acc, r) => acc + r.docflow.inputChars, 0) / Math.max(results.length, 1),
+    avgInputReductionPercentVsBaseline:
+      results.reduce(
+        (acc, r) =>
+          acc + ((r.baseline.inputChars - r.docflow.inputChars) / r.baseline.inputChars) * 100,
+        0
+      ) / Math.max(results.length, 1) || 0,
     results
   };
 
@@ -294,6 +373,9 @@ async function main() {
   console.log(`Avg docflow score: ${summary.avgDocflowScore.toFixed(3)}`);
   console.log(`Avg baseline input chars: ${Math.round(summary.avgBaselineInputChars)}`);
   console.log(`Avg docflow input chars: ${Math.round(summary.avgDocflowInputChars)}`);
+  console.log(
+    `Avg input reduction vs baseline: ${summary.avgInputReductionPercentVsBaseline.toFixed(2)}%`
+  );
   console.log(`Saved report: ${outPath}`);
 }
 
