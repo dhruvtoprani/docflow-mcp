@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "docflow": {
+      "command": "node",
+      "args": ["/absolute/path/to/docflow-mcp/dist/src/index.js"],
+      "env": {}
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api",
+  "goal": "Implement authenticated GitHub REST API requests in a Node backend",
+  "stack": "Node.js + TypeScript",
+  "maxChars": 6000
+}

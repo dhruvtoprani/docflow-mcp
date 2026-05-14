@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DocFlow MCP</title>
+    <meta
+      name="description"
+      content="DocFlow MCP turns large documentation pages into compact implementation context for AI coding assistants."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="hero">
+        <p class="eyebrow">Open Source MCP Tool</p>
+        <h1>DocFlow MCP</h1>
+        <p class="lead">
+          Turn long API docs into compact, implementation-ready context packs for ChatGPT, Claude,
+          Cursor, and other MCP clients.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="https://github.com/your-username/docflow-mcp"
+            >View on GitHub</a
+          >
+          <a class="button" href="../README.md">Read README</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>What it does</h2>
+        <ul>
+          <li>Fetches a docs URL</li>
+          <li>Removes noise and converts useful content to markdown</li>
+          <li>Detects sections like auth, endpoints, params, errors, and rate limits</li>
+          <li>Returns a compact context pack for coding assistants</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Quick install</h2>
+        <pre><code>git clone https://github.com/your-username/docflow-mcp.git
+cd docflow-mcp
+npm install
+npm run build</code></pre>
+      </section>
+
+      <section class="card">
+        <h2>Run locally (stdio MCP)</h2>
+        <pre><code>npm run dev</code></pre>
+      </section>
+
+      <section class="card">
+        <h2>Run as HTTP MCP server</h2>
+        <pre><code>npm run dev:http</code></pre>
+        <p>Endpoint: <code>http://127.0.0.1:3000/mcp</code></p>
+        <p>Health: <code>http://127.0.0.1:3000/healthz</code></p>
+      </section>
+
+      <section class="card">
+        <h2>Connect to ChatGPT</h2>
+        <ol>
+          <li>Deploy this server so it has a public HTTPS URL.</li>
+          <li>Use <code>https://your-domain.com/mcp</code> as your connector URL.</li>
+          <li>In ChatGPT, go to Settings -> Connectors -> Create.</li>
+        </ol>
+      </section>
+
+      <section class="card muted">
+        <h2>Made for builders</h2>
+        <p>
+          If you can copy-paste commands, you can run this. If you can publish a repo, you can share
+          it.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
