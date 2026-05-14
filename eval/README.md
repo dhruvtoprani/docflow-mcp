@@ -16,6 +16,11 @@ export EVAL_MODEL="gpt-5.5"
 
 `EVAL_MODEL` is optional. Default is `gpt-5.5`.
 
+Notes:
+
+- Use the raw key value (`sk-...`), not `Bearer sk-...`.
+- Keep the key on one line (no line breaks).
+
 ## Run
 
 ```bash

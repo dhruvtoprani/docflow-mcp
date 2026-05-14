@@ -40,6 +40,31 @@ type OpenAIResponse = {
   }>;
 };
 
+function normalizeApiKey(raw: string): string {
+  let key = raw.trim();
+
+  // Allow users to paste either "sk-..." or "Bearer sk-..."
+  if (key.toLowerCase().startsWith("bearer ")) {
+    key = key.slice(7).trim();
+  }
+
+  // Remove accidental whitespace/newlines from clipboard pastes.
+  const withoutWhitespace = key.replace(/\s+/g, "");
+  if (withoutWhitespace !== key) {
+    console.warn("OPENAI_API_KEY contained whitespace/newlines. Auto-cleaned before request.");
+  }
+
+  if (!withoutWhitespace.startsWith("sk-")) {
+    throw new Error("OPENAI_API_KEY format looks invalid. It should start with 'sk-'.");
+  }
+
+  if (withoutWhitespace.length < 20) {
+    throw new Error("OPENAI_API_KEY looks too short after cleanup.");
+  }
+
+  return withoutWhitespace;
+}
+
 function extractOutputText(payload: OpenAIResponse): string {
   if (typeof payload.output_text === "string" && payload.output_text.length > 0) {
     return payload.output_text;
@@ -212,13 +237,14 @@ async function runTask(args: {
 }
 
 async function main() {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const rawApiKey = process.env.OPENAI_API_KEY;
   const model = process.env.EVAL_MODEL || "gpt-5.5";
   const tasksPath = process.env.EVAL_TASKS_PATH || path.join(process.cwd(), "eval", "tasks.json");
 
-  if (!apiKey) {
+  if (!rawApiKey) {
     throw new Error("Missing OPENAI_API_KEY. Set it in your shell before running eval.");
   }
+  const apiKey = normalizeApiKey(rawApiKey);
 
   const raw = await readFile(tasksPath, "utf8");
   const tasks = JSON.parse(raw) as EvalTask[];
