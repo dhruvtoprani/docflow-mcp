@@ -76,6 +76,23 @@ Print full JSON instead of markdown:
 npm run dev:extract -- --json
 ```
 
+## Evaluate real usefulness vs copy/paste
+
+Run the workflow evaluator:
+
+```bash
+npm run eval:workflow
+```
+
+This compares:
+
+- rendered browser copy/paste baseline
+- DocFlow context pack
+
+and scores both on practical implementation quality (correctness, security, runnable readiness, hallucination risk).
+
+Reports are saved in `eval/results/`.
+
 ## Environment variables
 
 Use `.env.example` as reference.
@@ -106,6 +123,8 @@ See [examples/mcp-servers.example.json](examples/mcp-servers.example.json).
 - `npm run dev` - run stdio MCP server
 - `npm run dev:http` - run Streamable HTTP MCP server
 - `npm run dev:extract` - local extraction runner
+- `npm run eval:workflow` - rubric-based workflow usefulness evaluation
+- `npm run eval:ab` - fast keyword-based A/B evaluation
 - `npm run build` - compile TypeScript
 - `npm run test` - run tests
 - `npm run lint` - lint source and tests

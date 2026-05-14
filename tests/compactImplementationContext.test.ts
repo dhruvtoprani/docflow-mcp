@@ -25,4 +25,22 @@ describe("compactImplementationContext", () => {
     expect(result).toContain("curl -X POST /emails");
     expect(result).not.toContain("Founded in 2019");
   });
+
+  it("preserves critical API anchors like versioned paths and required headers", () => {
+    const markdown = [
+      "Some intro text",
+      "The request goes to /v1/search and returns paginated results.",
+      "Use header Notion-Version: 2022-06-28.",
+      "Use start_cursor for pagination.",
+      "### Extra",
+      "Some unrelated content."
+    ].join("\n");
+
+    const result = compactImplementationContext(markdown, 500);
+
+    expect(result).toContain("## Critical API Anchors");
+    expect(result).toContain("/v1/search");
+    expect(result).toContain("Notion-Version");
+    expect(result).toContain("start_cursor");
+  });
 });

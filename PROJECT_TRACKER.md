@@ -6,7 +6,7 @@ This is the live build tracker for DocFlow MCP. We will keep requirements, imple
 
 ## Current Phase
 
-MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current focus is real-client validation and public release hardening.
+MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current focus is proving real-world utility vs manual copy/paste, then hardening for public open-source adoption.
 
 ## Requirements (MVP)
 
@@ -30,6 +30,7 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - Preserve source URL and important implementation details.
 - HTTP server now exposed at `/mcp` with `GET/POST/DELETE` handlers and `/healthz`.
 - Tool registration now uses `registerTool` + annotations for connector-friendly metadata.
+- Evaluation now has two tracks: quick A/B and rubric-based workflow quality.
 
 ## Decisions Log
 
@@ -40,6 +41,8 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - 2026-05-14: Added Streamable HTTP runtime (`src/server/httpServer.ts`) and HTTP entrypoint (`src/http.ts`).
 - 2026-05-14: Standardized tool metadata with `registerTool` annotations (`readOnlyHint`, `openWorldHint`).
 - 2026-05-14: Added open-source packaging files (`LICENSE`, `CONTRIBUTING.md`, docs, examples, Dockerfile).
+- 2026-05-14: Added rendered-browser copy baseline mode to better simulate real select-all copy/paste.
+- 2026-05-14: Added workflow eval harness focused on practical implementation readiness and safety.
 
 ## Session Log (2026-05-14)
 
@@ -47,29 +50,26 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - Copied starter brief into repo as `PROJECT_START.md`.
 - Installed dependencies successfully with `npm install`.
 - Verified TypeScript compile with `npm run build`.
-- Verified tests with `npm test` (3 files, 4 tests passing).
+- Verified tests with `npm test`.
 - Ran end-to-end extraction smoke test with `npm run dev:extract`.
 - Expanded `detectDocSections` heuristics for overview-heavy documentation language.
 - Added integration tests for `extractDocsContext` with mocked `fetch` and content-type errors.
 - Added tool-level `isError` response wrapper for `extract_docs_context` failures.
 - Added tests for MCP tool success and error response shape.
-- Updated local demo to read input JSON from `examples/sample-input.json`.
-- Added `--json` mode to local demo script for inspecting full structured output.
-- Validated focused docs extraction against GitHub auth docs with all section flags detected.
 - Added HTTP transport mode and lifecycle management for MCP sessions.
 - Added `/healthz` endpoint and HTTP server tests.
 - Added connector setup doc and `mcp-servers` config example for fast onboarding.
-- Smoke-tested HTTP runtime: `npm run dev:http` + `GET /healthz` returned healthy response.
-- Added MCP harness test that lists and calls `extract_docs_context` through linked client/server transports.
-- Added public landing page scaffold in `docs/` with simple install and connector instructions.
+- Added public landing page scaffold in `docs/`.
 - Added GitHub Pages deployment workflow at `.github/workflows/deploy-pages.yml`.
 - Added non-technical release checklist file: `DEPLOY_STEPS_FOR_ANYONE.md`.
-- Verified current local blocker for auto-push: GitHub CLI token needs re-authentication.
 - Fixed docs/link integrity issues (removed local absolute links and stale placeholders).
 - Added Vercel serverless API routes: `api/mcp.ts` and `api/healthz.ts`.
 - Added `vercel.json` rewrites so `/mcp` and `/healthz` map to serverless endpoints.
-- Added `public/` landing output for Vercel static + functions deployment compatibility.
 - Deployed production URL and validated MCP initialize against live endpoint.
+- Added implementation-context compactor and stricter final pack budgeting.
+- Added a new workflow eval runner (`eval:workflow`) and real use-case task suite.
+- Added workflow eval support for multi-page task inputs (`urls`) to fairly score auth + endpoint tasks.
+- Added rendered-baseline navigation fallback strategy (`networkidle` -> `domcontentloaded` -> `load`) for better cross-site reliability.
 
 ## Action Items
 
@@ -80,18 +80,19 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - [x] Improve section detection heuristics for overview-heavy docs pages.
 - [x] Add integration tests around `extractDocsContext` with mocked fetch responses.
 - [x] Add robust error formatting for MCP tool responses (`isError` path).
-- [ ] Validate the HTTP `/mcp` server in ChatGPT connector flow.
 - [x] Add CLI switch for printing structured JSON output from local demo script.
 - [x] Add end-to-end MCP tool invocation harness over stdio transport.
 - [ ] Add end-to-end MCP tool invocation harness over HTTP transport.
-- [ ] Replace placeholder `websiteUrl` with real GitHub repo URL before launch.
 - [x] Re-authenticate GitHub CLI (`gh auth login`) and push initial public repo.
 - [x] Enable GitHub Pages in repo settings (GitHub Actions source).
 - [x] Deploy always-on Vercel production endpoint for ChatGPT connector use.
+- [x] Add workflow-grade eval harness focused on real implementation value.
+- [ ] Run 10+ workflow tasks and identify top 3 repeated failure patterns.
 
 ## Next Steps
 
-1. Validate ChatGPT connector end-to-end using `https://docflow-mcp.vercel.app/mcp`.
-2. Test extraction quality against two additional providers (email + payments docs).
-3. Add HTTP-level MCP call test (initialize + tool call against `/mcp`).
-4. Cut v0.1.0 release notes and publish repository.
+1. Run `npm run eval:workflow` with at least 10 tasks across auth, webhooks, payments, and email docs.
+2. Rank recurring failure reasons from `criticalMissingSteps` and `unsafeClaims` fields.
+3. Improve extraction and compaction based on those failure clusters.
+4. Add HTTP-level MCP call test (`initialize` + `extract_docs_context`) against `/mcp`.
+5. Cut v0.1.0 release notes once workflow eval shows stable value gains.

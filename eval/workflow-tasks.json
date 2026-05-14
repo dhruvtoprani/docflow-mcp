@@ -1,0 +1,87 @@
+[
+  {
+    "id": "github-auth-helper-workflow",
+    "url": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api",
+    "goal": "Implement authenticated GitHub REST API requests in a Node backend",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "Authorization",
+      "Bearer",
+      "X-GitHub-Api-Version",
+      "Accept: application/vnd.github+json",
+      "process.env.GITHUB_TOKEN"
+    ],
+    "mustAvoid": [
+      "hardcode",
+      "client-side token",
+      "store token in frontend",
+      "embed token in browser"
+    ],
+    "acceptanceCriteria": [
+      "Uses a server-side environment variable for the token and never exposes it in frontend code.",
+      "Includes required REST headers (Authorization Bearer token, Accept, and X-GitHub-Api-Version).",
+      "Provides robust non-2xx handling with actionable error messages for 401 and 403/404 permission cases.",
+      "Returns a reusable request helper for future endpoints instead of one-off snippets."
+    ],
+    "securityRequirements": [
+      "Never expose PATs in browser code, logs, or committed files.",
+      "Prefer least-privilege tokens and mention permission-scope mismatch as a failure mode."
+    ]
+  },
+  {
+    "id": "github-create-issue-workflow",
+    "url": "https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#create-an-issue",
+    "goal": "Create an issue in a repository from a Node backend service",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "POST",
+      "/issues",
+      "Authorization",
+      "Content-Type",
+      "title"
+    ],
+    "mustAvoid": [
+      "browser localStorage",
+      "public token",
+      "hardcode token"
+    ],
+    "acceptanceCriteria": [
+      "Builds a POST request to /repos/{owner}/{repo}/issues with at least title and optional body.",
+      "Sends JSON correctly with Content-Type and Authorization headers.",
+      "Validates critical input (owner/repo/title) before request execution.",
+      "Handles repository visibility and permission failures (403/404) in a developer-friendly way."
+    ],
+    "securityRequirements": [
+      "Keep token and repo secrets server-side only.",
+      "Do not suggest storing tokens in localStorage or frontend bundles."
+    ]
+  },
+  {
+    "id": "github-webhook-signature-workflow",
+    "url": "https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries",
+    "goal": "Validate GitHub webhook signatures in a Node server before processing payloads",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "X-Hub-Signature-256",
+      "HMAC",
+      "sha256",
+      "timingSafeEqual",
+      "raw body"
+    ],
+    "mustAvoid": [
+      "skip signature verification",
+      "trust payload without verification",
+      "compare signatures with =="
+    ],
+    "acceptanceCriteria": [
+      "Uses the webhook secret to compute HMAC SHA-256 over the raw request body.",
+      "Compares expected and received signatures using timing-safe comparison.",
+      "Rejects invalid signatures with a clear error response before business logic runs.",
+      "Highlights framework caveat that parsed JSON can break signature checks if raw body is not preserved."
+    ],
+    "securityRequirements": [
+      "Never process webhook payloads before signature verification.",
+      "Never log secrets or full sensitive payloads in production logs."
+    ]
+  }
+]

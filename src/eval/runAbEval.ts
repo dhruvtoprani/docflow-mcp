@@ -1,9 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { JSDOM } from "jsdom";
 import { extractDocsContext } from "../core/extractDocsContext.js";
 import { fetchPage } from "../core/fetchPage.js";
+import { createQuietJSDOM } from "../utils/createQuietJSDOM.js";
 
 type EvalTask = {
   id: string;
@@ -146,7 +146,7 @@ async function callOpenAI(args: {
 
 async function buildBaselineContext(url: string, maxChars = 12000): Promise<string> {
   const page = await fetchPage(url);
-  const dom = new JSDOM(page.html, { url: page.url });
+  const dom = createQuietJSDOM(page.html, { url: page.url });
   const fullText = dom.window.document.body?.textContent || "";
   const normalized = fullText.replace(/\s+/g, " ").trim();
   return normalized.slice(0, maxChars);

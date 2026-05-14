@@ -1,0 +1,287 @@
+[
+  {
+    "id": "github-auth-helper-workflow",
+    "url": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api",
+    "goal": "Implement authenticated GitHub REST API requests in a Node backend",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "Authorization",
+      "Bearer",
+      "X-GitHub-Api-Version",
+      "Accept: application/vnd.github+json",
+      "process.env.GITHUB_TOKEN"
+    ],
+    "mustAvoid": [
+      "hardcode",
+      "client-side token",
+      "store token in frontend",
+      "embed token in browser"
+    ],
+    "acceptanceCriteria": [
+      "Uses a server-side environment variable for the token and never exposes it in frontend code.",
+      "Includes required REST headers (Authorization Bearer token, Accept, and X-GitHub-Api-Version).",
+      "Provides robust non-2xx handling with actionable error messages for 401 and 403/404 permission cases.",
+      "Returns a reusable request helper for future endpoints instead of one-off snippets."
+    ],
+    "securityRequirements": [
+      "Never expose PATs in browser code, logs, or committed files.",
+      "Prefer least-privilege tokens and mention permission-scope mismatch as a failure mode."
+    ]
+  },
+  {
+    "id": "github-webhook-signature-workflow",
+    "url": "https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries",
+    "goal": "Validate GitHub webhook signatures in a Node server before processing payloads",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "X-Hub-Signature-256",
+      "HMAC",
+      "sha256",
+      "timingSafeEqual",
+      "raw body"
+    ],
+    "mustAvoid": [
+      "skip signature verification",
+      "trust payload without verification",
+      "compare signatures with =="
+    ],
+    "acceptanceCriteria": [
+      "Uses the webhook secret to compute HMAC SHA-256 over the raw request body.",
+      "Compares expected and received signatures using timing-safe comparison.",
+      "Rejects invalid signatures with a clear error response before business logic runs.",
+      "Highlights framework caveat that parsed JSON can break signature checks if raw body is not preserved."
+    ],
+    "securityRequirements": [
+      "Never process webhook payloads before signature verification.",
+      "Never log secrets or full sensitive payloads in production logs."
+    ]
+  },
+  {
+    "id": "stripe-idempotency-retry-workflow",
+    "url": "https://docs.stripe.com/api/idempotent_requests",
+    "goal": "Implement safe retry logic for Stripe POST requests using idempotency keys",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "Idempotency-Key",
+      "POST",
+      "same key",
+      "retry",
+      "24"
+    ],
+    "mustAvoid": [
+      "new key on each retry",
+      "idempotency for GET",
+      "store secret key client side"
+    ],
+    "acceptanceCriteria": [
+      "Includes Idempotency-Key on write requests and reuses the same key for retries of the same logical operation.",
+      "Does not apply idempotency guidance to GET/DELETE in a misleading way.",
+      "Explains key lifecycle/expiration behavior from docs before reusing stale keys.",
+      "Provides runnable retry helper code that avoids duplicate charge/order creation."
+    ],
+    "securityRequirements": [
+      "Keep Stripe secret key server-side only.",
+      "Never log full card/payment payloads in retry errors."
+    ]
+  },
+  {
+    "id": "stripe-pagination-cursor-workflow",
+    "url": "https://docs.stripe.com/api/pagination",
+    "goal": "Implement cursor pagination for Stripe list APIs",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "starting_after",
+      "ending_before",
+      "has_more",
+      "limit",
+      "object list"
+    ],
+    "mustAvoid": [
+      "page number",
+      "offset pagination",
+      "fetch all without cursor"
+    ],
+    "acceptanceCriteria": [
+      "Uses cursor params starting_after/ending_before correctly.",
+      "Loops using has_more to continue pagination safely.",
+      "Supports a caller-configurable limit with guardrails.",
+      "Returns stable typed results from each page."
+    ],
+    "securityRequirements": [
+      "Secret key remains server-side.",
+      "Avoid dumping full customer objects to logs."
+    ]
+  },
+  {
+    "id": "slack-chat-postmessage-workflow",
+    "url": "https://docs.slack.dev/reference/methods/chat.postMessage",
+    "goal": "Send Slack messages from a backend service using chat.postMessage",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "chat.postMessage",
+      "Authorization",
+      "Bearer",
+      "channel",
+      "text"
+    ],
+    "mustAvoid": [
+      "bot token in frontend",
+      "webhook URL as bot token",
+      "missing channel"
+    ],
+    "acceptanceCriteria": [
+      "Calls chat.postMessage endpoint with bearer token from env.",
+      "Sends required channel and text payload fields.",
+      "Checks Slack API response success boolean and error fields.",
+      "Provides retry-safe error handling for rate limit or auth failures."
+    ],
+    "securityRequirements": [
+      "Never expose Slack bot token in browser code.",
+      "Avoid logging sensitive message contents in production by default."
+    ]
+  },
+  {
+    "id": "slack-signature-validation-workflow",
+    "url": "https://docs.slack.dev/authentication/verifying-requests-from-slack/",
+    "goal": "Validate incoming Slack request signatures in a Node webhook server",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "X-Slack-Signature",
+      "X-Slack-Request-Timestamp",
+      "v0",
+      "HMAC-SHA256",
+      "raw body"
+    ],
+    "mustAvoid": [
+      "skip timestamp check",
+      "string compare with ==",
+      "parse JSON before signature check"
+    ],
+    "acceptanceCriteria": [
+      "Builds Slack base string with version, timestamp, and raw body.",
+      "Validates replay window using request timestamp.",
+      "Uses timing-safe signature comparison.",
+      "Rejects invalid signatures before business logic."
+    ],
+    "securityRequirements": [
+      "Never process request before signature and timestamp validation.",
+      "Do not log signing secret."
+    ]
+  },
+  {
+    "id": "notion-search-auth-workflow",
+    "url": "https://developers.notion.com/reference/post-search",
+    "urls": [
+      "https://developers.notion.com/reference/post-search",
+      "https://developers.notion.com/reference/authentication"
+    ],
+    "goal": "Implement authenticated Notion search from a backend service",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "Authorization",
+      "Bearer",
+      "Notion-Version",
+      "POST",
+      "/v1/search"
+    ],
+    "mustAvoid": [
+      "notion token in frontend",
+      "GET /v1/search",
+      "missing Notion-Version"
+    ],
+    "acceptanceCriteria": [
+      "Uses POST /v1/search with required auth and version headers.",
+      "Demonstrates filtering or query payload structure.",
+      "Handles pagination tokens where returned.",
+      "Returns typed response data to caller."
+    ],
+    "securityRequirements": [
+      "Keep Notion integration token server-side only.",
+      "Do not print raw tokens in error logs."
+    ]
+  },
+  {
+    "id": "sendgrid-mail-send-workflow",
+    "url": "https://www.twilio.com/docs/sendgrid/api-reference/mail-send/mail-send",
+    "goal": "Send an email with SendGrid Mail Send API from a backend service",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "POST",
+      "/v3/mail/send",
+      "Authorization",
+      "Bearer",
+      "personalizations"
+    ],
+    "mustAvoid": [
+      "api key in frontend",
+      "GET /v3/mail/send",
+      "missing content type"
+    ],
+    "acceptanceCriteria": [
+      "Uses POST /v3/mail/send with JSON payload structure including personalizations.",
+      "Reads SendGrid API key from env and uses Authorization Bearer.",
+      "Handles non-2xx responses with request-id style tracing guidance.",
+      "Includes minimal input validation for to/from/subject/content."
+    ],
+    "securityRequirements": [
+      "Never expose SendGrid API key in client code.",
+      "Do not log full recipient lists by default in production."
+    ]
+  },
+  {
+    "id": "twilio-webhook-signature-workflow",
+    "url": "https://www.twilio.com/docs/usage/webhooks/webhooks-security",
+    "goal": "Validate Twilio webhook signatures in a Node backend",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "X-Twilio-Signature",
+      "validate",
+      "full URL",
+      "auth token",
+      "raw params"
+    ],
+    "mustAvoid": [
+      "trust webhook without validation",
+      "ignore URL when verifying",
+      "auth token in frontend"
+    ],
+    "acceptanceCriteria": [
+      "Reads X-Twilio-Signature and validates against Twilio auth token.",
+      "Uses full external URL and request params/body exactly as required by docs.",
+      "Rejects invalid signatures before processing.",
+      "Provides framework-ready middleware style helper."
+    ],
+    "securityRequirements": [
+      "Never process unauthenticated webhooks.",
+      "Never log Twilio auth token or raw secrets."
+    ]
+  },
+  {
+    "id": "cloudflare-api-token-usage-workflow",
+    "url": "https://developers.cloudflare.com/fundamentals/api/get-started/create-token/",
+    "goal": "Call Cloudflare REST API with scoped API tokens from a backend script",
+    "stack": "Node.js + TypeScript",
+    "mustInclude": [
+      "Authorization",
+      "Bearer",
+      "API token",
+      "least privilege",
+      "scoped"
+    ],
+    "mustAvoid": [
+      "global API key in frontend",
+      "hardcoded token",
+      "overly broad permissions"
+    ],
+    "acceptanceCriteria": [
+      "Uses Authorization Bearer token pattern with scoped Cloudflare token.",
+      "Shows environment variable handling and safe request helper design.",
+      "Explains least-privilege token scope decisions.",
+      "Handles auth and permission failures clearly."
+    ],
+    "securityRequirements": [
+      "Prefer scoped tokens over broad global credentials.",
+      "Never leak token in logs or client bundles."
+    ]
+  }
+]

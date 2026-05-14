@@ -1,11 +1,20 @@
 const relevancePatterns: RegExp[] = [
   /auth|authorization|api key|bearer|token|oauth|credential/i,
-  /endpoint|route|method|curl|\bpost\b|\bget\b|\bput\b|\bpatch\b|\bdelete\b|\/api/i,
+  /endpoint|route|method|curl|\bpost\b|\bget\b|\bput\b|\bpatch\b|\bdelete\b|\/api|\/v\d+\//i,
   /request|request body|payload|parameter|params|query|header|required|field|schema/i,
   /response|status|returns?|json|example response/i,
-  /error|unauthorized|forbidden|not found|rate limit|throttle|quota|\b4\d\d\b|\b5\d\d\b/i,
+  /error|unauthorized|forbidden|not found|rate limit|throttle|quota|retry-after|\b4\d\d\b|\b5\d\d\b/i,
   /security|secret|environment variable|server-side|do not expose|permissions|scope/i,
   /install|setup|quickstart|prerequisite/i
+];
+
+const hardAnchorPatterns: RegExp[] = [
+  /\b(?:get|post|put|patch|delete)\s+\/[^\s)]+/i,
+  /https?:\/\/[^\s)]+\/v\d+\/[^\s)]+/i,
+  /\/v\d+\/[a-z0-9/_-]+/i,
+  /\b(?:authorization|content-type|accept|notion-version|x-github-api-version|idempotency-key|x-hub-signature-256|x-slack-signature|x-slack-request-timestamp|x-twilio-signature)\b/i,
+  /\b(?:starting_after|ending_before|has_more|next_cursor|start_cursor|page_size|limit)\b/i,
+  /process\.env\.[A-Z0-9_]+/
 ];
 
 function normalizeLines(lines: string[]): string[] {
@@ -29,9 +38,27 @@ function isRelevantLine(line: string): boolean {
   return relevancePatterns.some((pattern) => pattern.test(line));
 }
 
+function isHardAnchorLine(line: string): boolean {
+  return hardAnchorPatterns.some((pattern) => pattern.test(line));
+}
+
+function shouldKeepFence(lines: string[], startIndex: number): boolean {
+  for (let i = startIndex + 1; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (line.trim().startsWith("```")) {
+      return false;
+    }
+    if (isRelevantLine(line) || isHardAnchorLine(line)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function compactImplementationContext(markdown: string, maxChars: number): string {
   const lines = markdown.split(/\r?\n/);
   const selected: string[] = [];
+  const hardAnchors = new Set<string>();
   let signalHits = 0;
 
   let inFence = false;
@@ -42,15 +69,25 @@ export function compactImplementationContext(markdown: string, maxChars: number)
     const trimmed = line.trim();
     const isFence = trimmed.startsWith("```");
     const isHeading = /^#{1,6}\s+/.test(trimmed);
-    const relevant = isRelevantLine(line);
+    const relevant = isRelevantLine(line) || isHardAnchorLine(line);
+
+    if (isHardAnchorLine(line)) {
+      hardAnchors.add(trimmed);
+    }
 
     if (isFence) {
       if (!inFence) {
         inFence = true;
-        // Keep code fences when near relevant hints.
+        // Keep code fences when they contain implementation signals.
         const prev = lines[i - 1] || "";
         const next = lines[i + 1] || "";
-        keepFence = relevant || isRelevantLine(prev) || isRelevantLine(next);
+        keepFence =
+          relevant ||
+          isRelevantLine(prev) ||
+          isRelevantLine(next) ||
+          isHardAnchorLine(prev) ||
+          isHardAnchorLine(next) ||
+          shouldKeepFence(lines, i);
       } else {
         inFence = false;
       }
@@ -83,7 +120,14 @@ export function compactImplementationContext(markdown: string, maxChars: number)
     }
   }
 
-  const compacted = normalizeLines(selected).join("\n").trim();
+  const normalizedSelected = normalizeLines(selected);
+  const anchorLines = Array.from(hardAnchors).slice(0, 40);
+
+  const anchorSection =
+    anchorLines.length > 0
+      ? ["## Critical API Anchors", ...anchorLines.map((line) => `- ${line}`), ""]
+      : [];
+  const compacted = [...anchorSection, ...normalizedSelected].join("\n").trim();
   const fallback = markdown.slice(0, maxChars).trim();
 
   if (signalHits < 4 && compacted.length < Math.min(1200, maxChars / 4)) {

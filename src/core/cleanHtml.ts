@@ -1,5 +1,5 @@
 import { Readability } from "@mozilla/readability";
-import { JSDOM } from "jsdom";
+import { createQuietJSDOM } from "../utils/createQuietJSDOM.js";
 
 export function cleanHtml(
   html: string,
@@ -9,7 +9,7 @@ export function cleanHtml(
   contentHtml: string;
   textContent: string;
 } {
-  const dom = new JSDOM(html, { url });
+  const dom = createQuietJSDOM(html, { url });
   const document = dom.window.document;
 
   const selectorsToRemove = [

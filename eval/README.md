@@ -1,30 +1,36 @@
-# Automated A/B Eval
+# Automated Eval Suite
 
-This runs a programmed comparison between:
+This folder now has two evaluation tracks:
 
-- `baseline`: rendered browser copy (or naive HTML text fallback)
-- `docflow`: DocFlow context pack
-
-Both are sent to the same model with the same task prompt.
+- `eval:ab`: fast A/B compare using keyword hit scoring.
+- `eval:workflow`: deeper workflow scoring for real implementation usefulness.
 
 ## Setup
 
 ```bash
 export OPENAI_API_KEY="your_key_here"
-export EVAL_MODEL="gpt-5.5"
+export EVAL_MODEL="gpt-5.4-mini"
 ```
 
-`EVAL_MODEL` is optional. Default is `gpt-5.5`.
+Optional:
+
+```bash
+export EVAL_JUDGE_MODEL="gpt-5.4-mini"
+export EVAL_BASELINE_MODE="rendered_browser_copy"
+export EVAL_MAX_CHARS="12000"
+```
 
 Notes:
 
-- Use the raw key value (`sk-...`), not `Bearer sk-...`.
-- Keep the key on one line (no line breaks).
+- Use raw key format `sk-...` (not `Bearer sk-...`).
+- Keep the key on one line with no line breaks.
 
 Baseline modes:
 
 - `rendered_browser_copy` (default): browser-rendered text, closest to select-all copy/paste.
-- `naive_html_text`: quick fallback from raw HTML body text.
+- `naive_html_text`: fallback from raw HTML body text.
+
+Rendered mode now retries page loads with multiple wait strategies (`networkidle`, then `domcontentloaded`, then `load`) for better reliability on heavy docs sites.
 
 Install browser runtime once for rendered mode:
 
@@ -32,51 +38,57 @@ Install browser runtime once for rendered mode:
 npx playwright install chromium
 ```
 
-## Run
+## Run: Fast A/B
 
 ```bash
 npm run eval:ab
 ```
 
-Fallback mode:
+## Run: Workflow Eval (Recommended)
 
 ```bash
-EVAL_BASELINE_MODE=naive_html_text npm run eval:ab
+npm run eval:workflow
 ```
+
+This evaluates each output on:
+
+- implementation correctness
+- security hygiene
+- runnable readiness
+- hallucination risk
+
+It combines rubric judging with rule-based anchors (`mustInclude` / `mustAvoid`) so we can inspect both score and failure reasons.
 
 ## Output
 
-A JSON report is saved to:
+JSON reports are saved to:
 
 ```txt
-eval/results/ab-eval-<timestamp>.json
+eval/results/
 ```
 
-Report includes:
+Files:
 
-- winner per task
-- baseline/docflow score
-- include-hit and avoid-hit counts
-- prompt input chars
-- response chars
-- latency in ms
+- `ab-eval-<timestamp>.json`
+- `workflow-eval-<timestamp>.json`
 
-## Customize
+## Customize tasks
 
-Edit:
+- Fast A/B tasks: `eval/tasks.json`
+- Workflow tasks: `eval/workflow-tasks.json`
 
-```txt
-eval/tasks.json
-```
+Workflow task URL fields:
 
-Fields:
+- `url`: single docs page
+- `urls`: multi-page docs bundle (recommended for auth + endpoint + error pages)
 
-- `url`
-- `goal`
-- `stack`
-- `mustInclude` (strings expected in good output)
-- `mustAvoid` (anti-pattern strings)
+If both are present, `urls` is used.
+
+## Interpreting results
+
+If DocFlow is still worse, inspect each task's `criticalMissingSteps`, `unsafeClaims`, and `notes` fields.
+That tells us exactly what product behavior to improve (compaction, section extraction, or warning generation).
 
 ## Important
 
-Do not paste your API key into chat messages. Keep it in environment variables.
+Do not paste your API key into chat messages. Keep it in environment variables only.

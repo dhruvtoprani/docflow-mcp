@@ -70,6 +70,13 @@ Use the documentation context below to help implement the user's goal.
 Do not invent API behavior that is not supported by this context.
 If required information is missing, ask the user for the relevant documentation page.
 Keep secrets and API keys server-side unless the documentation explicitly says otherwise.
+When you respond, include this minimum implementation contract:
+- Exact HTTP method + endpoint path(s)
+- Required headers and auth format exactly as documented
+- Required request fields and pagination tokens (if any)
+- A reusable server-side helper/client (not just one-off demo code)
+- Explicit non-2xx handling and security notes
+If any item above is missing from context, say it is missing instead of guessing.
 
 ## Cleaned Documentation Context
 `;
