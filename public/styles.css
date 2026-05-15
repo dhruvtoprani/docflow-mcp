@@ -81,6 +81,10 @@ h1 {
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
+button.button {
+  cursor: pointer;
+}
+
 .button:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(16, 32, 47, 0.08);
@@ -116,7 +120,7 @@ h1 {
 
 .metric-value {
   margin: 0.35rem 0 0.15rem;
-  font-size: 1.7rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -148,6 +152,57 @@ h1 {
   line-height: 1.45;
 }
 
+.demo-controls {
+  display: grid;
+  grid-template-columns: 1fr 180px auto auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.demo-input,
+.demo-select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.56rem 0.66rem;
+  font-size: 0.93rem;
+}
+
+.demo-examples {
+  margin-top: 0.7rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f3f7fb;
+  padding: 0.38rem 0.64rem;
+  font-size: 0.79rem;
+  color: #294560;
+  cursor: pointer;
+}
+
+.status {
+  margin: 0.7rem 0 0.45rem;
+  font-size: 0.86rem;
+}
+
+.demo-box {
+  width: 100%;
+  min-height: 260px;
+  padding: 0.84rem;
+  background: #eef3f8;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #1a2b3b;
+}
+
 pre {
   margin: 0;
   padding: 0.84rem;
@@ -161,10 +216,6 @@ code {
   font-size: 0.92rem;
 }
 
-.muted {
-  border-style: dashed;
-}
-
 @media (max-width: 880px) {
   .metrics {
     grid-template-columns: 1fr;
@@ -172,5 +223,9 @@ code {
 
   .hero {
     padding: 1rem 0.85rem 0.55rem;
+  }
+
+  .demo-controls {
+    grid-template-columns: 1fr;
   }
 }

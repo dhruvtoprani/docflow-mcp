@@ -51,6 +51,7 @@ export async function extractDocsContext(
     goal: input.goal,
     stack: input.stack,
     contextPackMarkdown,
+    cleanedImplementationMarkdown: compactedMarkdown,
     rawCleanMarkdownPreview: compactedMarkdown.slice(0, 2000),
     detectedSections,
     warnings,

@@ -1,0 +1,34 @@
+name: Eval Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample_size:
+        description: "How many latest workflow-eval reports to analyze"
+        required: false
+        default: "3"
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run regression gate
+        run: npm run eval:triage
+        env:
+          EVAL_TRIAGE_FAIL_ON_REGRESSION: "1"
+          EVAL_TRIAGE_SAMPLE_SIZE: ${{ inputs.sample_size }}
+          EVAL_TRIAGE_MIN_QUALITY_DELTA: "0"
+          EVAL_TRIAGE_MIN_INPUT_REDUCTION: "20"
+          EVAL_TRIAGE_MAX_FAILED_TASKS: "0"

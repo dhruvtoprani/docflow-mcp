@@ -1,6 +1,6 @@
 {
   "name": "docflow-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server that converts API docs into compact, task-aware context for reliable AI-assisted coding.",
   "type": "module",
   "main": "dist/src/index.js",
@@ -9,14 +9,15 @@
     "dev:http": "tsx src/http.ts",
     "dev:extract": "tsx src/dev/runExtract.ts",
     "eval:ab": "tsx src/eval/runAbEval.ts",
+    "eval:workflow": "tsx src/eval/runWorkflowEval.ts",
+    "eval:triage": "tsx src/eval/runEvalTriage.ts",
     "build": "tsc",
     "start": "node dist/src/index.js",
     "start:http": "node dist/src/http.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src tests",
-    "format": "prettier --write .",
-    "eval:workflow": "tsx src/eval/runWorkflowEval.ts"
+    "format": "prettier --write ."
   },
   "keywords": [
     "mcp",

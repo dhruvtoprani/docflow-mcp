@@ -3,22 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DocFlow MCP</title>
+    <title>DocFlow Clipper MCP</title>
     <meta
       name="description"
-      content="DocFlow MCP is an MCP-native context optimization server that turns noisy API docs into implementation-ready context for AI coding assistants."
+      content="DocFlow is an MCP-native web clipper for AI coding assistants. Clip docs pages into copy-ready context and synthesize multi-page implementation packs."
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="wrap">
       <section class="hero">
-        <p class="eyebrow">MCP-Native Developer Infrastructure</p>
-        <h1>DocFlow MCP</h1>
-        <p class="tagline">The missing context layer for AI-assisted development.</p>
+        <p class="eyebrow">MCP-Native AI Coding Infrastructure</p>
+        <h1>DocFlow Clipper MCP</h1>
+        <p class="tagline">Copy any docs page for AI.</p>
         <p class="lead">
-          Convert bloated API docs into compact, contract-preserving context packs for ChatGPT,
-          Claude, Cursor, and MCP coding agents.
+          Clip noisy documentation into clean context for ChatGPT, Claude, Cursor, and MCP agents.
+          Single-page clipping and multi-page synthesis included.
         </p>
         <div class="actions">
           <a class="button primary" href="https://github.com/dhruvtoprani/docflow-mcp">View on GitHub</a>
@@ -28,64 +28,120 @@
 
       <section class="metrics">
         <article class="metric">
-          <p class="metric-label">Latest 10-task eval</p>
-          <p class="metric-value">8 : 2</p>
-          <p class="metric-note">DocFlow wins vs baseline</p>
+          <p class="metric-label">Core tool</p>
+          <p class="metric-value">clip_docs_page</p>
+          <p class="metric-note">single URL, copy-ready output</p>
         </article>
         <article class="metric">
-          <p class="metric-label">Quality score</p>
-          <p class="metric-value">0.794</p>
-          <p class="metric-note">DocFlow avg total</p>
+          <p class="metric-label">Synthesis tool</p>
+          <p class="metric-value">synthesize_docs_pages</p>
+          <p class="metric-note">multi-page implementation context</p>
         </article>
         <article class="metric">
-          <p class="metric-label">Efficiency gain</p>
-          <p class="metric-value">29.15%</p>
-          <p class="metric-note">Input reduction vs baseline</p>
+          <p class="metric-label">Output modes</p>
+          <p class="metric-value">3</p>
+          <p class="metric-note">context, markdown, plain text</p>
         </article>
       </section>
 
       <section class="card">
-        <h2>Why teams use it</h2>
-        <ul>
-          <li>Reduce prompt bloat from raw docs copy/paste.</li>
-          <li>Preserve method/path/header/auth and verification anchors.</li>
-          <li>Improve implementation reliability per token spent.</li>
-        </ul>
+        <h2>Live Demo</h2>
+        <p>
+          Paste a docs URL or use a quick example. This calls live clipping and returns copy-ready output.
+        </p>
+
+        <div class="demo-controls">
+          <input id="demoUrl" class="demo-input" placeholder="https://docs.stripe.com/api/pagination" />
+          <select id="demoMode" class="demo-select">
+            <option value="clipper_context">LLM Context</option>
+            <option value="clipper_markdown">Markdown</option>
+            <option value="clipper_text">Plain Text</option>
+          </select>
+          <button class="button primary" onclick="runDemo()">Clip Now</button>
+          <button class="button" onclick="copyDemoOutput()">Copy Output</button>
+        </div>
+
+        <div class="demo-examples">
+          <button class="chip" onclick="setDemoUrl('https://docs.stripe.com/api/pagination')">Stripe Pagination</button>
+          <button class="chip" onclick="setDemoUrl('https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api')">GitHub Auth</button>
+          <button class="chip" onclick="setDemoUrl('https://api.slack.com/methods/chat.postMessage')">Slack postMessage</button>
+        </div>
+
+        <p id="demoStatus" class="status">Ready.</p>
+        <textarea id="demoOutput" class="demo-box" readonly placeholder="Your clipped output will appear here..."></textarea>
       </section>
 
       <section class="card">
-        <h2>Core capabilities</h2>
-        <ul>
-          <li>Task-aware context compression.</li>
-          <li>API contract anchor retention and backfill.</li>
-          <li>Prompt-injection hygiene filtering.</li>
-          <li>MCP-native context pack output for coding assistants.</li>
-        </ul>
-      </section>
-
-      <section class="card">
-        <h2>Quick install</h2>
+        <h2>Quick start</h2>
         <pre><code>git clone https://github.com/dhruvtoprani/docflow-mcp.git
 cd docflow-mcp
 npm install
-npm run build</code></pre>
-      </section>
-
-      <section class="card">
-        <h2>Run locally</h2>
-        <pre><code>npm run dev</code></pre>
-        <p>or run HTTP MCP server:</p>
-        <pre><code>npm run dev:http</code></pre>
-        <p>Endpoint: <code>http://127.0.0.1:3000/mcp</code></p>
-      </section>
-
-      <section class="card muted">
-        <h2>Built for practical AI coding workflows</h2>
-        <p>
-          DocFlow is purpose-built to improve implementation quality and reduce token waste in
-          MCP-driven development loops.
-        </p>
+npm run build
+npm run dev:http</code></pre>
+        <p>HTTP endpoint: <code>http://127.0.0.1:3000/mcp</code> and clip endpoint: <code>http://127.0.0.1:3000/clip</code></p>
       </section>
     </main>
+
+    <script>
+      const CLIP_ENDPOINT = "https://docflow-mcp.vercel.app/api/clip";
+
+      function setDemoUrl(url) {
+        const input = document.getElementById("demoUrl");
+        if (input) input.value = url;
+      }
+
+      function setStatus(message, isError = false) {
+        const status = document.getElementById("demoStatus");
+        if (!status) return;
+        status.textContent = message;
+        status.style.color = isError ? "#a11" : "#365";
+      }
+
+      async function runDemo() {
+        const urlInput = document.getElementById("demoUrl");
+        const modeInput = document.getElementById("demoMode");
+        const output = document.getElementById("demoOutput");
+
+        if (!urlInput || !modeInput || !output) return;
+
+        const url = String(urlInput.value || "").trim();
+        if (!url) {
+          setStatus("Enter a docs URL first.", true);
+          return;
+        }
+
+        setStatus("Clipping page...");
+        output.value = "";
+
+        try {
+          const response = await fetch(CLIP_ENDPOINT, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ url, mode: modeInput.value, maxChars: 12000 })
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "Clip request failed");
+          }
+
+          output.value = data.copyReadyText || "";
+          setStatus(`Done. ${output.value.length.toLocaleString()} chars ready to copy.`);
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : "Demo failed.", true);
+        }
+      }
+
+      async function copyDemoOutput() {
+        const output = document.getElementById("demoOutput");
+        if (!output || !output.value) {
+          setStatus("Nothing to copy yet.", true);
+          return;
+        }
+
+        await navigator.clipboard.writeText(output.value);
+        setStatus("Copied to clipboard.");
+      }
+    </script>
   </body>
 </html>

@@ -51,6 +51,8 @@ describe("MCP harness", () => {
     await client.connect(clientTransport);
 
     const tools = await client.listTools();
+    expect(tools.tools.some((tool) => tool.name === "clip_docs_page")).toBe(true);
+    expect(tools.tools.some((tool) => tool.name === "synthesize_docs_pages")).toBe(true);
     expect(tools.tools.some((tool) => tool.name === "extract_docs_context")).toBe(true);
 
     const result = await client.callTool({

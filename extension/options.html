@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DocFlow Clipper Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>DocFlow Clipper Options</h1>
+      <p>Set which clip endpoint the extension should call.</p>
+
+      <label>
+        Clip Endpoint URL
+        <input id="endpoint" type="url" placeholder="https://docflow-mcp.vercel.app/api/clip" />
+      </label>
+
+      <div class="row">
+        <button id="save" class="primary">Save</button>
+        <button id="reset">Reset Default</button>
+      </div>
+
+      <p id="status">Ready.</p>
+    </main>
+
+    <script src="options.js"></script>
+  </body>
+</html>

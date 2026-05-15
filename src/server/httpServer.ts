@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+import { clipDocsPage } from "../core/clipDocsPage.js";
 import { createDocFlowMcpServer } from "./mcpServer.js";
 
 type SessionRecord = {
@@ -14,6 +15,20 @@ type StartHttpServerOptions = {
   host?: string;
   port?: number;
 };
+
+type ClipBody = {
+  url?: string;
+  goal?: string;
+  stack?: string;
+  maxChars?: number;
+  mode?: "clipper_context" | "clipper_markdown" | "clipper_text";
+};
+
+function setCorsHeaders(res: Response): void {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+}
 
 export async function startHttpServer(options: StartHttpServerOptions = {}) {
   const host = options.host ?? process.env.DOCFLOW_HTTP_HOST ?? "127.0.0.1";
@@ -27,6 +42,39 @@ export async function startHttpServer(options: StartHttpServerOptions = {}) {
       transport: "streamable-http",
       activeSessions: Object.keys(sessions).length
     });
+  });
+
+  app.options("/clip", (_req: Request, res: Response) => {
+    setCorsHeaders(res);
+    res.status(204).end();
+  });
+
+  app.post("/clip", async (req: Request, res: Response) => {
+    setCorsHeaders(res);
+
+    try {
+      const body = (req.body || {}) as ClipBody;
+      const url = String(body.url || "").trim();
+
+      if (!url) {
+        res.status(400).json({ error: "Provide a documentation URL." });
+        return;
+      }
+
+      const result = await clipDocsPage({
+        url,
+        goal: body.goal,
+        stack: body.stack,
+        maxChars: body.maxChars,
+        mode: body.mode
+      });
+
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Clip request failed."
+      });
+    }
   });
 
   app.post("/mcp", async (req: Request, res: Response) => {

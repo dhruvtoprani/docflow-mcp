@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "DocFlow Clipper",
+  "description": "Clip any docs page into AI-ready context via DocFlow MCP.",
+  "version": "0.1.0",
+  "permissions": ["storage", "activeTab", "tabs"],
+  "host_permissions": ["<all_urls>", "https://docflow-mcp.vercel.app/*"],
+  "action": {
+    "default_title": "DocFlow Clipper",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "options_page": "options.html"
+}

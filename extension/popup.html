@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DocFlow Clipper</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <h1>DocFlow Clipper</h1>
+
+      <label>
+        URL
+        <input id="url" type="url" placeholder="https://docs.example.com" />
+      </label>
+
+      <label>
+        Goal (optional)
+        <input id="goal" type="text" placeholder="Implement webhook signature validation" />
+      </label>
+
+      <label>
+        Mode
+        <select id="mode">
+          <option value="clipper_context">LLM Context</option>
+          <option value="clipper_markdown">Markdown</option>
+          <option value="clipper_text">Plain Text</option>
+        </select>
+      </label>
+
+      <div class="row">
+        <button id="useTab">Use Current Tab</button>
+        <button id="clip" class="primary">Clip</button>
+      </div>
+
+      <p id="status">Ready.</p>
+
+      <textarea id="output" readonly placeholder="Clipped output appears here"></textarea>
+
+      <div class="row">
+        <button id="copy">Copy</button>
+        <button id="openOptions">Options</button>
+      </div>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -43,6 +43,9 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - 2026-05-14: Added open-source packaging files (`LICENSE`, `CONTRIBUTING.md`, docs, examples, Dockerfile).
 - 2026-05-14: Added rendered-browser copy baseline mode to better simulate real select-all copy/paste.
 - 2026-05-14: Added workflow eval harness focused on practical implementation readiness and safety.
+- 2026-05-15: Added OSS hardening plan in `ACTION_ITEMS.md` and started P0 reliability work.
+- 2026-05-15: Added workflow triage evaluator (`eval:triage`) to aggregate multi-run quality + compression trends.
+- 2026-05-15: Added GitHub CI (`ci.yml`) and manual regression gate (`eval-gate.yml`).
 
 ## Session Log (2026-05-14)
 
@@ -71,28 +74,37 @@ MVP `v0.1` is now product-ready in both `stdio` and HTTP (`/mcp`) modes. Current
 - Added workflow eval support for multi-page task inputs (`urls`) to fairly score auth + endpoint tasks.
 - Added rendered-baseline navigation fallback strategy (`networkidle` -> `domcontentloaded` -> `load`) for better cross-site reliability.
 
+## Session Log (2026-05-15)
+
+- Added scoped open-source execution plan in `ACTION_ITEMS.md`.
+- Added `src/eval/runEvalTriage.ts` + `npm run eval:triage` for multi-run regression detection.
+- Added CI workflow for lint/test/build and informational triage output.
+- Added manual `eval-gate` workflow to fail on regression when maintainers trigger release checks.
+- Updated evaluation documentation with a strict 3-run protocol and threshold-based gate.
+
 ## Action Items
 
-- [x] Scaffold repository structure and core files.
-- [x] Install dependencies and validate build.
-- [x] Run tests and fix issues.
-- [x] Smoke-test extraction on one real docs URL.
-- [x] Improve section detection heuristics for overview-heavy docs pages.
-- [x] Add integration tests around `extractDocsContext` with mocked fetch responses.
-- [x] Add robust error formatting for MCP tool responses (`isError` path).
-- [x] Add CLI switch for printing structured JSON output from local demo script.
-- [x] Add end-to-end MCP tool invocation harness over stdio transport.
-- [ ] Add end-to-end MCP tool invocation harness over HTTP transport.
-- [x] Re-authenticate GitHub CLI (`gh auth login`) and push initial public repo.
-- [x] Enable GitHub Pages in repo settings (GitHub Actions source).
-- [x] Deploy always-on Vercel production endpoint for ChatGPT connector use.
-- [x] Add workflow-grade eval harness focused on real implementation value.
-- [ ] Run 10+ workflow tasks and identify top 3 repeated failure patterns.
+### P0 Reliability + Gatekeeping
+- [x] Add workflow eval triage command (`eval:triage`) over last N runs.
+- [x] Add threshold checks for quality delta, failed tasks, and input reduction.
+- [ ] Tune default thresholds from actual repo history (last 10 reports) and freeze them.
+- [ ] Add one-command release gate script that runs workflow eval + triage end-to-end.
+
+### P0 OSS Trust Signals
+- [x] Add CI for lint/test/build.
+- [x] Add manual eval regression workflow.
+- [ ] Add CODEOWNERS and issue templates for external contributors.
+- [ ] Add changelog template for consistent release notes.
+
+### P1 Product + Messaging Hardening
+- [ ] Refresh README sections for positioning, quickstart, and evaluation proof.
+- [ ] Add "when DocFlow helps / when it does not" section.
+- [ ] Add benchmark table generated from triage output for consistency.
 
 ## Next Steps
 
-1. Run `npm run eval:workflow` with at least 10 tasks across auth, webhooks, payments, and email docs.
-2. Rank recurring failure reasons from `criticalMissingSteps` and `unsafeClaims` fields.
-3. Improve extraction and compaction based on those failure clusters.
-4. Add HTTP-level MCP call test (`initialize` + `extract_docs_context`) against `/mcp`.
-5. Cut v0.1.0 release notes once workflow eval shows stable value gains.
+1. Run workflow eval two more times using the same config to complete a clean 3-run triage window.
+2. Run `npm run eval:triage` and inspect gate outputs.
+3. Tune threshold defaults using the latest 10 reports to reduce false regressions.
+4. Add CODEOWNERS + issue templates + changelog template.
+5. Update README with stable benchmark framing from triage outputs.

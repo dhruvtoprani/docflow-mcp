@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Eval triage (informational when reports exist)
+        if: ${{ hashFiles('eval/results/workflow-eval-*.json') != '' }}
+        run: npm run eval:triage
+        env:
+          EVAL_TRIAGE_SAMPLE_SIZE: "3"
+          EVAL_TRIAGE_MIN_QUALITY_DELTA: "0"
+          EVAL_TRIAGE_MIN_INPUT_REDUCTION: "20"
+          EVAL_TRIAGE_MAX_FAILED_TASKS: "0"
