@@ -1,105 +1,102 @@
 # DocFlow MCP
 
-DocFlow MCP is an open-source Model Context Protocol server that converts large docs pages into compact, implementation-ready context packs for AI coding assistants.
+**The missing context layer for AI-assisted development.**
 
-## Why it exists
+DocFlow MCP is an open-source **MCP server** that converts noisy API documentation pages into compact, implementation-ready context packs for coding assistants like ChatGPT, Claude, Cursor, and other MCP clients.
 
-Developers waste context windows by pasting entire docs pages into AI chats.
+## What It Is
 
-DocFlow MCP takes:
+DocFlow is an **AI context optimization utility** for developer workflows.
+
+It is not a generic scraper, crawler, or markdown conversion tool.
+
+It is designed to improve one thing: **implementation quality per token** when building against external docs.
+
+## Why It Exists
+
+Most AI coding failures on API tasks are context failures.
+
+Raw docs include navigation clutter, repeated headers, irrelevant examples, and marketing content. Copy-pasting that directly into coding assistants:
+
+- increases token usage
+- lowers signal density
+- reduces implementation reliability
+
+DocFlow compresses docs into high-signal context that preserves the API contract details required to ship code.
+
+## Jobs To Be Done (JTBD)
+
+When I ask an AI coding assistant to implement against external docs, help me:
+
+- pull only task-relevant context instead of full-page dumps
+- preserve exact contract details (method, path, headers, auth, pagination/signature tokens)
+- generate reusable implementation patterns, not one-off snippets
+- reduce hallucination risk by grounding responses in extracted docs evidence
+- reduce token spend without sacrificing implementation quality
+
+## Core Value
+
+DocFlow improves:
+
+- **Quality**: better implementation correctness and runnable readiness
+- **Efficiency**: smaller context payloads and lower token cost
+- **Reliability**: stronger contract-anchor preservation for auth/webhooks/pagination-heavy tasks
+
+## Before vs After (Conceptual)
+
+### Raw copy/paste docs context
+- full page chrome
+- repeated headings/navigation
+- mixed relevance examples
+- low signal density for the current coding task
+
+### DocFlow context pack
+- task-aware, compact implementation context
+- preserved API anchors (headers, paths, params, signature fields)
+- warnings + context hygiene signals
+- optimized for AI coding assistant consumption
+
+## MCP Tool
+
+### `extract_docs_context`
+
+Input:
 
 - `url`
 - `goal`
 - optional `stack`
 
-and returns a structured payload with:
+Output:
 
-- compact markdown context pack
-- detected implementation coverage (auth, endpoints, params, errors, etc.)
-- warnings for missing info
-- suspicious prompt-injection line detection
-- size-reduction stats
+- compact implementation context pack (markdown)
+- detected section coverage (auth/endpoints/params/errors/security)
+- warnings and suspicious instruction filtering
+- context-size reduction stats
 
-## Tool
+## How It Works
 
-`extract_docs_context`
+1. Fetch docs page
+2. Normalize and clean content
+3. Convert to structured markdown
+4. Remove suspicious prompt-injection-like instructions
+5. Apply task-aware context compression
+6. Preserve/backfill critical API contract anchors
+7. Return MCP-native context pack output
 
-## Quickstart
+## Benchmarking and Evaluation
 
-### 1. Install
+DocFlow is measured against a rendered browser copy/paste baseline.
 
-```bash
-git clone https://github.com/dhruvtoprani/docflow-mcp.git
-cd docflow-mcp
-npm install
-npm run build
-```
+### Scoring dimensions
 
-### 2. Run as local stdio MCP server
+- implementation correctness
+- security hygiene
+- runnable readiness
+- hallucination risk
 
-```bash
-npm run dev
-```
+### Efficiency metric
 
-### 3. Run as HTTP MCP server (`/mcp`)
-
-```bash
-npm run dev:http
-```
-
-Default URL: `http://127.0.0.1:3000/mcp`  
-Health check: `http://127.0.0.1:3000/healthz`
-
-## Live URLs
-
-- Landing page: `https://dhruvtoprani.github.io/docflow-mcp/`
-- Live MCP endpoint: `https://docflow-mcp.vercel.app/mcp`
-- Live health check: `https://docflow-mcp.vercel.app/healthz`
-
-## Local extraction demo
-
-Run with sample input:
-
-```bash
-npm run dev:extract
-```
-
-Use a custom input file:
-
-```bash
-npm run dev:extract -- examples/sample-input.json
-```
-
-Print full JSON instead of markdown:
-
-```bash
-npm run dev:extract -- --json
-```
-
-## Evaluate real usefulness vs copy/paste
-
-Run the workflow evaluator:
-
-```bash
-npm run eval:workflow
-```
-
-This compares:
-
-- rendered browser copy/paste baseline
-- DocFlow context pack
-
-and scores both on practical implementation quality (correctness, security, runnable readiness, hallucination risk).
-
-Reports are saved in `eval/results/`.
-
-## Testing & Evaluation
-
-DocFlow is evaluated against a rendered browser-copy baseline on implementation quality, safety, and readiness.
-
-- Quality dimensions: implementation correctness, security hygiene, runnable readiness, hallucination risk
-- Efficiency dimension: input context size reduction
-- Result files: `eval/results/workflow-eval-*.json`
+- input context reduction vs baseline
 
 ### Recent 3-run trend
 
@@ -111,81 +108,128 @@ DocFlow is evaluated against a rendered browser-copy baseline on implementation 
 
 Interpretation:
 
-- The project improved from regression to strong positive benchmark performance.
-- Context stayed compact while quality increased.
-- Continued repeated runs are recommended to monitor variance and guard against overfitting.
+- Quality improved from regression to strong benchmark lead
+- Context stayed materially smaller while quality increased
+- Repeat runs remain important for variance and overfitting control
 
-## Jobs To Be Done (JTBD)
+Reports are stored in `eval/results/workflow-eval-*.json`.
 
-When I ask an AI coding assistant to implement against external docs, help me:
+## Quickstart
 
-- Pull only task-relevant documentation context, not entire pages.
-- Preserve critical API anchors (methods, paths, headers, pagination/signature tokens).
-- Produce reusable backend implementation patterns instead of one-off snippets.
-- Reduce hallucination risk by grounding outputs in extracted docs evidence.
-- Improve delivery speed and cost by shrinking prompt/context size.
+### 1) Install
 
-## Environment variables
+```bash
+git clone https://github.com/dhruvtoprani/docflow-mcp.git
+cd docflow-mcp
+npm install
+npm run build
+```
+
+### 2) Run local stdio MCP server
+
+```bash
+npm run dev
+```
+
+### 3) Run Streamable HTTP MCP server
+
+```bash
+npm run dev:http
+```
+
+Default URL: `http://127.0.0.1:3000/mcp`  
+Health check: `http://127.0.0.1:3000/healthz`
+
+## Local Demo
+
+```bash
+npm run dev:extract
+```
+
+Custom input file:
+
+```bash
+npm run dev:extract -- examples/sample-input.json
+```
+
+Full JSON output:
+
+```bash
+npm run dev:extract -- --json
+```
+
+## Run Evaluations
+
+Workflow evaluator:
+
+```bash
+npm run eval:workflow
+```
+
+Fast A/B evaluator:
+
+```bash
+npm run eval:ab
+```
+
+## Compatibility
+
+DocFlow is designed for MCP-native workflows and works well with:
+
+- ChatGPT MCP connectors
+- Claude MCP clients
+- Cursor + MCP-hosted toolchains
+- custom MCP-compatible coding agents
+
+## Live URLs
+
+- Landing page: `https://dhruvtoprani.github.io/docflow-mcp/`
+- Live MCP endpoint: `https://docflow-mcp.vercel.app/mcp`
+- Live health check: `https://docflow-mcp.vercel.app/healthz`
+
+## Connect to ChatGPT (Custom MCP Connector)
+
+1. Ensure your MCP endpoint is publicly reachable via HTTPS.
+2. Use `/mcp` as connector URL path.
+3. In ChatGPT: `Settings -> Connectors -> Create`.
+4. Set URL to `https://docflow-mcp.vercel.app/mcp`.
+5. Test `extract_docs_context`.
+
+## Environment Variables
 
 Use `.env.example` as reference.
 
 - `DOCFLOW_HTTP_HOST` (default: `127.0.0.1`)
 - `DOCFLOW_HTTP_PORT` (default: `3000`)
-- `DOCFLOW_USER_AGENT` (optional custom outbound fetch user-agent)
+- `DOCFLOW_USER_AGENT` (optional outbound fetch user-agent)
 
-## Connect to ChatGPT as a custom MCP connector
-
-1. Deploy or tunnel the HTTP server so it is publicly reachable over HTTPS.
-2. Ensure your connector URL points to `/mcp`.
-3. In ChatGPT: `Settings -> Connectors -> Create`.
-4. Set:
-
-- Name: `DocFlow MCP`
-- Description: `Documentation context compressor for coding assistants`
-- URL: `https://docflow-mcp.vercel.app/mcp`
-
-5. Save and test `extract_docs_context`.
-
-## MCP client config example (stdio)
+## MCP Client Config Example (stdio)
 
 See [examples/mcp-servers.example.json](examples/mcp-servers.example.json).
 
 ## Scripts
 
-- `npm run dev` - run stdio MCP server
-- `npm run dev:http` - run Streamable HTTP MCP server
+- `npm run dev` - stdio MCP server
+- `npm run dev:http` - Streamable HTTP MCP server
 - `npm run dev:extract` - local extraction runner
-- `npm run eval:workflow` - rubric-based workflow usefulness evaluation
-- `npm run eval:ab` - fast keyword-based A/B evaluation
+- `npm run eval:workflow` - rubric-based workflow evaluation
+- `npm run eval:ab` - keyword-based A/B evaluation
 - `npm run build` - compile TypeScript
 - `npm run test` - run tests
 - `npm run lint` - lint source and tests
 - `npm run format` - format repository
 
-## Development
-
-```bash
-npm run lint
-npm run build
-npm test
-```
-
-## Scope (v0.1)
-
-- Single-page documentation extraction
-- MCP tool output for implementation context
-- No frontend, no auth layer, no persistence
-
 ## Roadmap
 
-- v0.2: docs map crawling (`crawl_docs_map`)
-- v0.3: multi-page context pack generation
-- v0.4: code-vs-doc validation tools
-- v0.5: richer app integrations
+- Multi-page docs context packs
+- Host-optimized output modes for major MCP clients
+- CI benchmark regression gates
+- Docs-to-implementation validation checks
+- Richer MCP ecosystem integrations
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md).
+Read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

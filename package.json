@@ -1,7 +1,7 @@
 {
   "name": "docflow-mcp",
   "version": "0.1.0",
-  "description": "MCP server for turning API docs into AI-ready implementation context.",
+  "description": "MCP server that converts API docs into compact, task-aware context for reliable AI-assisted coding.",
   "type": "module",
   "main": "dist/src/index.js",
   "scripts": {
