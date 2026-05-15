@@ -6,49 +6,37 @@
     <title>DocFlow Clipper MCP</title>
     <meta
       name="description"
-      content="DocFlow is an MCP-native web clipper for AI coding assistants. Clip docs pages into copy-ready context and synthesize multi-page implementation packs."
+      content="DocFlow removes documentation noise and returns clean, implementation-ready context for AI coding tools."
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="wrap">
       <section class="hero">
-        <p class="eyebrow">MCP-Native AI Coding Infrastructure</p>
+        <p class="eyebrow">MCP-native context layer for AI coding</p>
         <h1>DocFlow Clipper MCP</h1>
-        <p class="tagline">Copy any docs page for AI.</p>
         <p class="lead">
-          Clip noisy documentation into clean context for ChatGPT, Claude, Cursor, and MCP agents.
-          Single-page clipping and multi-page synthesis included.
+          Developers lose quality and burn tokens when they paste bloated docs pages into AI tools.
+          DocFlow clips documentation into clean, copy-ready implementation context.
         </p>
+
         <div class="actions">
-          <a class="button primary" href="https://github.com/dhruvtoprani/docflow-mcp">View on GitHub</a>
-          <a class="button" href="https://github.com/dhruvtoprani/docflow-mcp#readme">Read README</a>
+          <a class="button primary" href="#demo">Demo</a>
+          <a class="button" href="https://github.com/dhruvtoprani/docflow-mcp">GitHub</a>
         </div>
       </section>
 
-      <section class="metrics">
-        <article class="metric">
-          <p class="metric-label">Core tool</p>
-          <p class="metric-value">clip_docs_page</p>
-          <p class="metric-note">single URL, copy-ready output</p>
-        </article>
-        <article class="metric">
-          <p class="metric-label">Synthesis tool</p>
-          <p class="metric-value">synthesize_docs_pages</p>
-          <p class="metric-note">multi-page implementation context</p>
-        </article>
-        <article class="metric">
-          <p class="metric-label">Output modes</p>
-          <p class="metric-value">3</p>
-          <p class="metric-note">context, markdown, plain text</p>
-        </article>
+      <section class="problem card">
+        <h2>Problem</h2>
+        <p>
+          Documentation pages include navigation clutter, repeated headers, and low-signal content.
+          AI assistants then spend context on noise instead of implementation details.
+        </p>
       </section>
 
-      <section class="card">
-        <h2>Live Demo</h2>
-        <p>
-          Paste a docs URL or use a quick example. This calls live clipping and returns copy-ready output.
-        </p>
+      <section class="card" id="demo">
+        <h2>Demo</h2>
+        <p>Paste a docs URL and get clean output ready to copy into ChatGPT, Claude, or Cursor.</p>
 
         <div class="demo-controls">
           <input id="demoUrl" class="demo-input" placeholder="https://docs.stripe.com/api/pagination" />
@@ -57,8 +45,8 @@
             <option value="clipper_markdown">Markdown</option>
             <option value="clipper_text">Plain Text</option>
           </select>
-          <button class="button primary" onclick="runDemo()">Clip Now</button>
-          <button class="button" onclick="copyDemoOutput()">Copy Output</button>
+          <button class="button primary" onclick="runDemo()">Run Demo</button>
+          <button class="button" onclick="copyDemoOutput()">Copy</button>
         </div>
 
         <div class="demo-examples">
@@ -68,17 +56,7 @@
         </div>
 
         <p id="demoStatus" class="status">Ready.</p>
-        <textarea id="demoOutput" class="demo-box" readonly placeholder="Your clipped output will appear here..."></textarea>
-      </section>
-
-      <section class="card">
-        <h2>Quick start</h2>
-        <pre><code>git clone https://github.com/dhruvtoprani/docflow-mcp.git
-cd docflow-mcp
-npm install
-npm run build
-npm run dev:http</code></pre>
-        <p>HTTP endpoint: <code>http://127.0.0.1:3000/mcp</code> and clip endpoint: <code>http://127.0.0.1:3000/clip</code></p>
+        <textarea id="demoOutput" class="demo-box" readonly placeholder="Clipped output appears here..."></textarea>
       </section>
     </main>
 
@@ -94,7 +72,7 @@ npm run dev:http</code></pre>
         const status = document.getElementById("demoStatus");
         if (!status) return;
         status.textContent = message;
-        status.style.color = isError ? "#a11" : "#365";
+        status.style.color = isError ? "#9e1b1b" : "#2c5746";
       }
 
       async function runDemo() {

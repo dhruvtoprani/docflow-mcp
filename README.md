@@ -43,12 +43,9 @@ Endpoints:
 
 A lightweight extension wrapper lives in [`extension/`](./extension).
 
-1. Open `chrome://extensions`
-2. Enable Developer mode
-3. Click **Load unpacked**
-4. Select the `extension` folder
+For handing this off to someone else, use:
 
-Then open the extension popup, clip the current tab, and copy output directly.
+- [`extension/INSTALL_AND_UPLOAD.md`](./extension/INSTALL_AND_UPLOAD.md)
 
 ## Minimal tool input examples
 

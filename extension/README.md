@@ -1,17 +1,21 @@
 # DocFlow Clipper Chrome Extension (Wrapper)
 
-This extension is a lightweight wrapper around DocFlow's clip endpoint.
+This extension wraps DocFlow's clip endpoint so users can clip docs pages directly from Chrome.
 
-## Current state
+## What it does
 
-- Popup UI for clipping the current tab or any URL
-- Output mode switch (LLM context, markdown, plain text)
-- Copy output directly from popup
-- Configurable backend endpoint via options page
+- Clip current tab or any URL
+- Choose output mode (`LLM Context`, `Markdown`, `Plain Text`)
+- Copy cleaned output from popup
+- Configure backend endpoint in options page
 
-## Load locally
+## Install quickly
 
-1. Open Chrome -> `chrome://extensions`
+See full guide: [`INSTALL_AND_UPLOAD.md`](./INSTALL_AND_UPLOAD.md)
+
+Short path:
+
+1. Open `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
 4. Select the `extension/` folder
@@ -19,5 +23,3 @@ This extension is a lightweight wrapper around DocFlow's clip endpoint.
 ## Default endpoint
 
 `https://docflow-mcp.vercel.app/api/clip`
-
-You can change this in extension options.
