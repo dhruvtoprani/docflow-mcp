@@ -1,5 +1,7 @@
 # DocFlow Clipper MCP
 
+> **Stop wasting context on noisy documentation pages.** DocFlow is an MCP-native documentation clipper that turns messy docs, navigation chrome, and repeated page clutter into clean, implementation-ready context for AI coding tools.
+
 DocFlow is an MCP-native documentation clipper for AI coding workflows.
 
 It turns noisy docs pages into clean, copy-ready context for ChatGPT, Claude, Cursor, and agentic coding tools.
